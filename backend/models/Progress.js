@@ -51,32 +51,53 @@ class Progress {
   }
 
   static async recordTaskCompletion(userId, taskId, language, score, xp) {
-    // Record task completion
+    // Check if this task was already completed (to avoid inflating totals)
+    const existingQuery = `
+      SELECT id, score AS old_score, xp_earned AS old_xp
+      FROM user_task_progress
+      WHERE user_id = $1 AND task_id = $2 AND status = 'completed'
+    `;
+    const existing = await pool.query(existingQuery, [userId, taskId]);
+    const wasAlreadyCompleted = existing.rows.length > 0;
+    const oldScore = existing.rows[0]?.old_score || 0;
+    const oldXp = existing.rows[0]?.old_xp || 0;
+
+    // Record/update task completion
     const taskQuery = `
       INSERT INTO user_task_progress (user_id, task_id, language, status, score, xp_earned, completed_at)
       VALUES ($1, $2, $3, 'completed', $4, $5, NOW())
-      ON CONFLICT (user_id, task_id) 
-      DO UPDATE SET 
+      ON CONFLICT (user_id, task_id)
+      DO UPDATE SET
         status = 'completed',
-        score = $4,
-        xp_earned = $5,
+        score = GREATEST(user_task_progress.score, $4),
+        xp_earned = GREATEST(user_task_progress.xp_earned, $5),
         completed_at = NOW()
       RETURNING *
     `;
-    
+
     await pool.query(taskQuery, [userId, taskId, language, score, xp]);
-    
-    // Update overall progress
-    const progress = await this.getProgress(userId, language);
-    const newScore = (progress?.total_score || 0) + score;
-    const newXP = (progress?.total_xp || 0) + xp;
-    const newCount = (progress?.completed_tasks_count || 0) + 1;
-    
-    await this.updateProgress(userId, language, {
-      total_score: newScore,
-      total_xp: newXP,
-      completed_tasks_count: newCount
-    });
+
+    // Ensure progress row exists before updating
+    const progress = await this.getOrCreate(userId, language);
+
+    if (wasAlreadyCompleted) {
+      // Only apply the delta (improvement over previous best)
+      const scoreDelta = Math.max(0, score - oldScore);
+      const xpDelta = Math.max(0, xp - oldXp);
+      if (scoreDelta > 0 || xpDelta > 0) {
+        await this.updateProgress(userId, language, {
+          total_score: (progress.total_score || 0) + scoreDelta,
+          total_xp: (progress.total_xp || 0) + xpDelta
+        });
+      }
+    } else {
+      // First completion - add full values and increment count
+      await this.updateProgress(userId, language, {
+        total_score: (progress.total_score || 0) + score,
+        total_xp: (progress.total_xp || 0) + xp,
+        completed_tasks_count: (progress.completed_tasks_count || 0) + 1
+      });
+    }
   }
 
   static async getTaskSubmissions(userId, taskId) {

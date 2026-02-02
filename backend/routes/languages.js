@@ -36,39 +36,22 @@ router.get('/', (req, res) => {
   });
 });
 
-// Get language details
-router.get('/:languageId', (req, res) => {
-  const { languageId } = req.params;
-  const language = SUPPORTED_LANGUAGES.find(lang => lang.id === languageId);
-  
-  if (!language) {
-    return res.status(404).json({
-      success: false,
-      message: 'Language not supported'
-    });
-  }
-
-  res.json({
-    success: true,
-    language
-  });
-});
-
 // Get user's selected language (requires auth)
+// IMPORTANT: Must be declared BEFORE /:languageId to avoid "user" being captured as a languageId
 router.get('/user/selected', authenticate, async (req, res) => {
   try {
     const pool = require('../models/database');
     const query = `
-      SELECT selected_language FROM user_settings 
+      SELECT selected_language FROM user_settings
       WHERE user_id = $1
     `;
     const result = await pool.query(query, [req.user.id]);
-    
+
     const selectedLanguage = result.rows[0]?.selected_language || null;
-    
+
     res.json({
       success: true,
-      selectedLanguage: selectedLanguage ? 
+      selectedLanguage: selectedLanguage ?
         SUPPORTED_LANGUAGES.find(lang => lang.id === selectedLanguage) : null
     });
   } catch (error) {
@@ -78,6 +61,7 @@ router.get('/user/selected', authenticate, async (req, res) => {
 });
 
 // Set user's selected language (requires auth)
+// IMPORTANT: Must be declared BEFORE /:languageId
 router.post('/user/select', authenticate, async (req, res) => {
   try {
     const { languageId } = req.body;
@@ -109,6 +93,25 @@ router.post('/user/select', authenticate, async (req, res) => {
     console.error('Error setting selected language:', error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
+});
+
+// Get language details
+// Declared AFTER /user/* routes so "user" isn't captured as a languageId
+router.get('/:languageId', (req, res) => {
+  const { languageId } = req.params;
+  const language = SUPPORTED_LANGUAGES.find(lang => lang.id === languageId);
+
+  if (!language) {
+    return res.status(404).json({
+      success: false,
+      message: 'Language not supported'
+    });
+  }
+
+  res.json({
+    success: true,
+    language
+  });
 });
 
 module.exports = router;

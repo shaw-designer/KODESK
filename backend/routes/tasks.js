@@ -9,10 +9,13 @@ router.get('/language/:language', authenticate, async (req, res) => {
   try {
     const { language } = req.params;
     const tasks = await Task.getUnlockedTasks(req.user.id, language);
-    
+
+    // Strip solution_code from list responses to prevent answer leaks
+    const safeTasks = tasks.map(({ solution_code, ...task }) => task);
+
     res.json({
       success: true,
-      tasks
+      tasks: safeTasks
     });
   } catch (error) {
     console.error('Error fetching tasks:', error);

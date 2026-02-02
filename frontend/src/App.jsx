@@ -23,7 +23,7 @@ function PrivateRoute({ children }) {
 }
 
 function App() {
-  const defaultLanguage = 'javascript'; // Set your default language here
+  const defaultLanguage = 'python';
 
   return (
     <Routes>

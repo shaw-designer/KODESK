@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
 const { Pool } = require('pg');
 
@@ -9,8 +11,41 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
+// Security headers
+app.use(helmet());
+
+// CORS - restrict to known origins in production
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN || '*',
+  credentials: true,
+};
+app.use(cors(corsOptions));
+
+// Rate limiting
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // 20 requests per window for auth routes
+  message: { success: false, message: 'Too many requests, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const executeLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 15, // 15 code executions per minute
+  message: { success: false, message: 'Too many execution requests, please slow down' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const generalLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(generalLimiter);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -46,12 +81,12 @@ const codeExecutionRoutes = require('./routes/codeExecution');
 const progressRoutes = require('./routes/progress');
 const gameRoutes = require('./routes/games');
 
-// Use routes
-app.use('/api/auth', authRoutes);
+// Use routes (with targeted rate limiters on sensitive endpoints)
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/languages', languageRoutes);
 app.use('/api/tasks', taskRoutes);
-app.use('/api/execute', codeExecutionRoutes);
+app.use('/api/execute', executeLimiter, codeExecutionRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/games', gameRoutes);
 
