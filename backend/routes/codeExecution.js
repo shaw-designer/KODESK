@@ -6,6 +6,9 @@ const Progress = require('../models/Progress');
 
 const router = express.Router();
 
+const isDev = process.env.NODE_ENV !== 'production';
+const debugLog = (...args) => { if (isDev) console.log(...args); };
+
 // Docker client
 const dockerSocketPath = process.env.DOCKER_SOCKET_PATH ||
   (process.platform === 'win32' ? '\\\\.\\pipe\\docker_engine' : '/var/run/docker.sock');
@@ -14,15 +17,15 @@ const docker = new Docker({
   socketPath: dockerSocketPath
 });
 
-// Language configurations
+// Language configurations - images pinned for reproducibility
 const LANGUAGE_CONFIGS = {
   cpp: {
-    image: 'gcc:latest',
+    image: 'gcc:13.2',
     compileCommand: (code) => `echo '${code.replace(/'/g, "'\\''")}' > /tmp/code.cpp && g++ -o /tmp/code /tmp/code.cpp && /tmp/code`,
     timeout: 5000
   },
   java: {
-    image: 'amazoncorretto:17',
+    image: 'amazoncorretto:17.0.9',
     compileCommand: (code) => {
       const classMatch = code.match(/public\s+class\s+(\w+)/);
       const className = classMatch ? classMatch[1] : 'Solution';
@@ -31,7 +34,7 @@ const LANGUAGE_CONFIGS = {
     timeout: 5000
   },
   python: {
-    image: 'python:3.11',
+    image: 'python:3.11.7-slim',
     compileCommand: (code) => `python3 -c '${code.replace(/'/g, "'\\''")}'`,
     timeout: 5000
   }
@@ -73,9 +76,9 @@ async function executeCode(code, language, input = '') {
       }
 
       // Debug: Log the Docker command and inputs
-      console.log('[DEBUG] Docker command:', command);
-      console.log('[DEBUG] Input provided:', JSON.stringify(input));
-      console.log('[DEBUG] Language:', language);
+      debugLog('[DEBUG] Docker command:', command);
+      debugLog('[DEBUG] Input provided:', JSON.stringify(input));
+      debugLog('[DEBUG] Language:', language);
 
       // Create the Docker container
       container = await docker.createContainer({
@@ -111,7 +114,7 @@ async function executeCode(code, language, input = '') {
 
       clearTimeout(timeout);
 
-      console.log('[DEBUG] Exit code:', exitCode);
+      debugLog('[DEBUG] Exit code:', exitCode);
 
       // Get stdout and stderr separately
       let stdout = '';
@@ -126,7 +129,7 @@ async function executeCode(code, language, input = '') {
         });
         stdout = stdoutLogs.toString('utf8');
       } catch (err) {
-        console.log('[DEBUG] Error getting stdout:', err.message);
+        debugLog('[DEBUG] Error getting stdout:', err.message);
       }
 
       try {
@@ -138,20 +141,20 @@ async function executeCode(code, language, input = '') {
         });
         stderr = stderrLogs.toString('utf8');
       } catch (err) {
-        console.log('[DEBUG] Error getting stderr:', err.message);
+        debugLog('[DEBUG] Error getting stderr:', err.message);
       }
 
-      console.log('[DEBUG] Raw stdout:', JSON.stringify(stdout));
-      console.log('[DEBUG] Raw stderr:', JSON.stringify(stderr));
-      console.log('[DEBUG] Stdout length:', stdout.length);
-      console.log('[DEBUG] Stderr length:', stderr.length);
+      debugLog('[DEBUG] Raw stdout:', JSON.stringify(stdout));
+      debugLog('[DEBUG] Raw stderr:', JSON.stringify(stderr));
+      debugLog('[DEBUG] Stdout length:', stdout.length);
+      debugLog('[DEBUG] Stderr length:', stderr.length);
 
       // Clean output strings
       const cleanedStdout = cleanString(stdout);
       const cleanedStderr = cleanString(stderr);
 
-      console.log('[DEBUG] Cleaned stdout:', cleanedStdout);
-      console.log('[DEBUG] Cleaned stderr:', cleanedStderr);
+      debugLog('[DEBUG] Cleaned stdout:', cleanedStdout);
+      debugLog('[DEBUG] Cleaned stderr:', cleanedStderr);
 
       let output = '';
       let errors = '';
@@ -168,14 +171,14 @@ async function executeCode(code, language, input = '') {
         output = cleanedStdout; // Still provide stdout for context
       }
 
-      console.log('[DEBUG] Final output field:', JSON.stringify(output));
-      console.log('[DEBUG] Final errors field:', JSON.stringify(errors));
+      debugLog('[DEBUG] Final output field:', JSON.stringify(output));
+      debugLog('[DEBUG] Final errors field:', JSON.stringify(errors));
 
       // Clean up container
       try {
         await container.remove();
       } catch (err) {
-        console.log('[DEBUG] Error removing container:', err.message);
+        debugLog('[DEBUG] Error removing container:', err.message);
       }
 
       resolve({ output, errors, exitCode });
@@ -239,11 +242,11 @@ router.post('/evaluate', authenticate, async (req, res) => {
         const cleanedOutput = cleanString(output);
         const cleanedExpected = cleanString(testCase.expected_output || '');
 
-        console.log('[DEBUG] Test case comparison:');
-        console.log('[DEBUG] Expected:', JSON.stringify(cleanedExpected));
-        console.log('[DEBUG] Actual:', JSON.stringify(cleanedOutput));
-        console.log('[DEBUG] Exit code:', exitCode);
-        console.log('[DEBUG] Match:', cleanedOutput === cleanedExpected);
+        debugLog('[DEBUG] Test case comparison:');
+        debugLog('[DEBUG] Expected:', JSON.stringify(cleanedExpected));
+        debugLog('[DEBUG] Actual:', JSON.stringify(cleanedOutput));
+        debugLog('[DEBUG] Exit code:', exitCode);
+        debugLog('[DEBUG] Match:', cleanedOutput === cleanedExpected);
 
         const passed = exitCode === 0 && cleanedOutput === cleanedExpected;
 
@@ -276,11 +279,11 @@ router.post('/evaluate', authenticate, async (req, res) => {
       }
     }
 
-    // Calculate score and XP
+    // Calculate score and XP (guard against zero test cases)
     const passedCount = results.filter(r => r.passed).length;
     const totalCount = results.length;
-    const score = Math.round((passedCount / totalCount) * 100);
-    const xp = allPassed ? 100 : Math.round((passedCount / totalCount) * 50);
+    const score = totalCount > 0 ? Math.round((passedCount / totalCount) * 100) : 0;
+    const xp = totalCount === 0 ? 0 : allPassed ? 100 : Math.round((passedCount / totalCount) * 50);
 
     // Save submission
     const verdict = allPassed ? 'Pass' : 'Fail';
@@ -341,9 +344,9 @@ router.post('/run', authenticate, async (req, res) => {
     const { output, errors, exitCode } = await executeCode(code, language, input);
 
     // Log output before sending to frontend
-    console.log('[DEBUG] Final output being sent to frontend:', JSON.stringify(output));
-    console.log('[DEBUG] Final errors being sent to frontend:', JSON.stringify(errors));
-    console.log('[DEBUG] Final exitCode:', exitCode);
+    debugLog('[DEBUG] Final output being sent to frontend:', JSON.stringify(output));
+    debugLog('[DEBUG] Final errors being sent to frontend:', JSON.stringify(errors));
+    debugLog('[DEBUG] Final exitCode:', exitCode);
 
     res.json({
       success: true,

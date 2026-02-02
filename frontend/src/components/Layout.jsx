@@ -204,7 +204,7 @@ function Layout() {
         {menuItems.map((item) => (
           <ListItem key={item.text} disablePadding>
             <MenuItemStyled
-              selected={location.pathname === item.path || location.pathname.startsWith(item.path.split('/')[1])}
+              selected={item.path === '/' ? location.pathname === '/' : location.pathname.startsWith(item.path)}
               onClick={() => {
                 navigate(item.path);
                 setMobileOpen(false);
@@ -293,7 +293,7 @@ function Layout() {
         {menuItems.map((item) => (
           <ListItem key={item.text} disablePadding>
             <MenuItemStyled
-              selected={location.pathname === item.path || location.pathname.startsWith(item.path.split('/')[1])}
+              selected={item.path === '/' ? location.pathname === '/' : location.pathname.startsWith(item.path)}
               onClick={() => navigate(item.path)}
               fullWidth
             >
