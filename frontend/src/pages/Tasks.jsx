@@ -30,6 +30,54 @@ import api from '../services/api';
 import { colors } from '../theme/modernTheme';
 import styled from 'styled-components';
 
+// Keyframe animations
+const slideInUp = `
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`;
+
+const slideInLeft = `
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+`;
+
+const pulse = `
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 10px ${colors.primary}40; }
+    50% { box-shadow: 0 0 25px ${colors.primary}80; }
+  }
+`;
+
+const shimmer = `
+  @keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+  }
+`;
+
+const bounce = `
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+`;
+
 // Styled components
 const QuestBoardHeader = styled(Paper)`
   background: linear-gradient(135deg, ${colors.primary}30, ${colors.secondary}30);
@@ -40,6 +88,9 @@ const QuestBoardHeader = styled(Paper)`
   backdrop-filter: blur(20px);
   position: relative;
   overflow: hidden;
+  animation: slideInLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+
+  ${slideInLeft}
 
   &::before {
     content: '';
@@ -50,6 +101,12 @@ const QuestBoardHeader = styled(Paper)`
     height: 400px;
     background: radial-gradient(circle, ${colors.primary}15, transparent);
     border-radius: 50%;
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(20px) rotate(2deg); }
   }
 `;
 
@@ -58,8 +115,11 @@ const QuestCard = styled(Card)`
   border-radius: 14px;
   position: relative;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  animation: slideInUp 0.6s ease-out forwards;
+
+  ${slideInUp}
 
   &::before {
     content: '';
@@ -72,15 +132,29 @@ const QuestCard = styled(Card)`
     border-radius: 50%;
   }
 
+  ${props => props.index !== undefined && `
+    animation-delay: ${0.05 * props.index}s;
+  `}
+
   &:hover {
-    transform: translateY(-8px) scale(1.02);
+    transform: translateY(-12px) scale(1.03) rotate(0.5deg);
     border-color: ${colors.primary} !important;
-    box-shadow: 0 0 30px ${colors.primary}60, inset 0 0 20px ${colors.primary}20 !important;
+    box-shadow: 0 20px 50px ${colors.primary}40, inset 0 0 20px ${colors.primary}20 !important;
+
+    & .MuiCardContent-root {
+      transform: translateX(5px);
+    }
+
+    & .action-button {
+      transform: translateX(4px);
+      box-shadow: 0 6px 20px ${colors.primary}40;
+    }
   }
 
   ${props => props.completed && `
     border: 2px solid ${colors.success} !important;
     opacity: 1;
+    background: linear-gradient(135deg, ${colors.success}15, ${colors.success}05) !important;
   `}
 
   ${props => props.unlocked && !props.completed && `
@@ -90,8 +164,14 @@ const QuestCard = styled(Card)`
 
   ${props => !props.unlocked && `
     border: 2px solid ${colors.primary}20 !important;
-    opacity: 0.6;
+    opacity: 0.7;
     cursor: not-allowed;
+    transition: all 0.3s ease;
+
+    &:hover {
+      opacity: 0.8;
+      transform: translateY(0);
+    }
   `}
 `;
 
@@ -103,6 +183,11 @@ const DifficultyBadge = styled(Box)`
   border-radius: 20px;
   font-weight: 700;
   font-size: 0.8rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
 
   ${props => {
     let bgColor = colors.primary + '30';
@@ -136,6 +221,9 @@ const RewardBox = styled(Box)`
   gap: 8px;
   align-items: center;
   padding: 8px 0;
+  animation: slideInUp 0.7s ease-out 0.3s both;
+
+  ${slideInUp}
 
   & .reward-item {
     display: flex;
@@ -144,9 +232,16 @@ const RewardBox = styled(Box)`
     font-size: 0.85rem;
     font-weight: 700;
     color: ${colors.accent};
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: scale(1.15) translateY(-2px);
+      filter: drop-shadow(0 4px 8px ${colors.accent}40);
+    }
 
     & .MuiSvgIcon-root {
       font-size: 1rem;
+      animation: bounce 2s ease-in-out infinite;
     }
   }
 `;
@@ -268,12 +363,13 @@ function Tasks() {
                 title={task.is_unlocked ? 'Click to start this quest!' : 'Complete previous quests to unlock'}
                 arrow
               >
-                <QuestCard
-                  unlocked={task.is_unlocked}
-                  completed={task.is_completed}
-                  onClick={() => task.is_unlocked && navigate(`/task/${task.id}`)}
-                  sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-                >
+              <QuestCard
+              index={index}
+              unlocked={task.is_unlocked}
+              completed={task.is_completed}
+              onClick={() => task.is_unlocked && navigate(`/task/${task.id}`)}
+              sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+            >
                   {/* Quest Header */}
                   <CardContent sx={{ flex: 1 }}>
                     {/* Status Badge */}
@@ -345,14 +441,39 @@ function Tasks() {
                       variant={task.is_unlocked ? 'contained' : 'outlined'}
                       disabled={!task.is_unlocked}
                       endIcon={<ArrowIcon />}
+                      className="action-button"
                       sx={{
                         background: task.is_unlocked
                           ? `linear-gradient(135deg, ${colors.primary}, ${colors.accent})`
                           : 'transparent',
                         color: task.is_unlocked ? colors.textDark : colors.primary,
+                        fontWeight: 700,
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        '&::before': task.is_unlocked ? {
+                          content: '""',
+                          position: 'absolute',
+                          top: '50%',
+                          left: '50%',
+                          width: 0,
+                          height: 0,
+                          background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%)',
+                          borderRadius: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          transition: 'width 0.6s ease, height 0.6s ease',
+                        } : {},
+                        '&:hover:not(:disabled)::before': task.is_unlocked ? {
+                          width: '300px',
+                          height: '300px',
+                        } : {},
+                        '&:disabled': {
+                          opacity: 0.6,
+                          cursor: 'not-allowed'
+                        }
                       }}
                     >
-                      {task.is_completed ? 'Completed' : task.is_unlocked ? 'Start Quest' : 'Locked'}
+                      {task.is_completed ? 'Completed ✓' : task.is_unlocked ? 'Start Quest' : 'Locked 🔒'}
                     </Button>
                   </CardActions>
                 </QuestCard>

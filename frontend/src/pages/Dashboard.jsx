@@ -105,6 +105,16 @@ const StatCard = styled(Card)`
   position: relative;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  min-height: 160px;
+
+  & .MuiCardContent-root {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+  }
 
   &::before {
     content: '';
@@ -360,7 +370,7 @@ function Dashboard() {
       </HeroSection>
 
       {/* Stats Grid */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Grid container spacing={3} sx={{ mb: 4, alignItems: 'stretch' }}>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard>
             <CardContent>
