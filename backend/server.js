@@ -80,12 +80,14 @@ const taskRoutes = require('./routes/tasks');
 const codeExecutionRoutes = require('./routes/codeExecution');
 const progressRoutes = require('./routes/progress');
 const gameRoutes = require('./routes/games');
+const learningRoutes = require('./routes/learning');
 
 // Use routes (with targeted rate limiters on sensitive endpoints)
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/languages', languageRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/learning', learningRoutes);
 app.use('/api/execute', executeLimiter, codeExecutionRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/games', gameRoutes);

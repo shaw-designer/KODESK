@@ -39,9 +39,10 @@ class Task {
   }
 
   static async findByLanguage(language) {
+    // Use DISTINCT ON to avoid accidental duplicate rows per level_number
     const query = `
-      SELECT * FROM tasks 
-      WHERE language = $1 
+      SELECT DISTINCT ON (level_number) * FROM tasks
+      WHERE language = $1
       ORDER BY level_number, id
     `;
     const result = await pool.query(query, [language]);

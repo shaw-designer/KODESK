@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import Layout from './components/Layout';
@@ -11,6 +11,7 @@ import TaskDetail from './pages/TaskDetail';
 import LearningContent from './pages/LearningContent';
 import Profile from './pages/Profile';
 import Games from './pages/Games';
+import api from './services/api';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -19,14 +20,40 @@ function PrivateRoute({ children }) {
     return <div>Loading...</div>;
   }
   
-  return user ? children : <Navigate to="/login" />;
+  // If the user is not authenticated, send them to learning as a guest landing page
+  return user ? children : <Navigate to="/learning/python" />;
 }
 
 function App() {
-  const defaultLanguage = 'python';
+  const [defaultLanguage, setDefaultLanguage] = useState('python');
+  const { user } = useAuth();
+
+  useEffect(() => {
+    let mounted = true;
+    const fetchSelected = async () => {
+      if (user) {
+        try {
+          const res = await api.get('/languages/user/selected');
+          if (mounted && res.data.selectedLanguage) {
+            setDefaultLanguage(res.data.selectedLanguage.id);
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
+    };
+
+    fetchSelected();
+    return () => { mounted = false; };
+  }, [user]);
 
   return (
     <Routes>
+      {/* Public learning routes (guests can access learning content) */}
+      <Route path="/" element={<Navigate to="/learning/python" replace />} />
+      <Route path="learning" element={<Navigate to={`/learning/${defaultLanguage}`} replace />} />
+      <Route path="learning/:language" element={<LearningContent />} />
+
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
@@ -41,20 +68,18 @@ function App() {
         <Route index element={<Dashboard />} />
         <Route path="languages" element={<LanguageSelection />} />
 
-        {/* Redirect incomplete routes to default language */}
+        {/* Redirect incomplete routes to user's selected/default language */}
         <Route path="tasks" element={<Navigate to={`/tasks/${defaultLanguage}`} replace />} />
-        <Route path="learning" element={<Navigate to={`/learning/${defaultLanguage}`} replace />} />
 
         {/* Actual routes with language parameter */}
         <Route path="tasks/:language" element={<Tasks />} />
         <Route path="task/:taskId" element={<TaskDetail />} />
-        <Route path="learning/:language" element={<LearningContent />} />
         <Route path="games" element={<Games />} />
         <Route path="profile" element={<Profile />} />
       </Route>
 
-      {/* Catch-all route: redirect unknown paths to dashboard */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {/* Catch-all route: redirect unknown paths to learning */}
+      <Route path="*" element={<Navigate to="/learning/python" replace />} />
     </Routes>
   );
 }

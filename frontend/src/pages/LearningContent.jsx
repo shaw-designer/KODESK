@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Container,
   Typography,
@@ -10,9 +10,14 @@ import {
   ListItemButton,
   ListItemText,
   Divider,
-  LinearProgress
+  LinearProgress,
+  Alert,
+  Button,
+  Stack,
+  Chip
 } from '@mui/material';
 import api from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 function LearningContent() {
   const { language } = useParams();
@@ -21,53 +26,113 @@ function LearningContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // For now, we'll use mock data since learning_content table might not be populated
-    // In production, this would fetch from /api/learning/:language
-    setContent([
-      {
-        id: 1,
-        topic: 'basics',
-        title: 'Getting Started',
-        content: 'Learn the fundamentals of programming...',
-        order_index: 1
-      },
-      {
-        id: 2,
-        topic: 'variables',
-        title: 'Variables and Data Types',
-        content: 'Understanding variables and different data types...',
-        order_index: 2
+    const lang = language || 'python';
+    setLoading(true);
+    const fetchContent = async () => {
+      try {
+        const res = await api.get(`/learning/${lang}`);
+        if (res.data && res.data.content) {
+          // Ensure ordering by order_index
+          const sorted = res.data.content.sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
+          setContent(sorted);
+        } else {
+          setContent([]);
+        }
+      } catch (error) {
+        console.error('Error fetching learning content:', error);
+        setContent([]);
+      } finally {
+        setLoading(false);
       }
-    ]);
-    setLoading(false);
+    };
+
+    fetchContent();
   }, [language]);
+
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   if (loading) {
     return <LinearProgress />;
   }
 
   return (
-    <Container maxWidth="lg">
-      <Typography variant="h4" gutterBottom>
-        Learning Content - {language?.toUpperCase()}
-      </Typography>
-      <Typography variant="body1" color="text.secondary" paragraph>
-        Explore topic-based tutorials and examples to enhance your understanding.
-      </Typography>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Box sx={{ mb: 4, textAlign: 'center' }}>
+        <Typography variant="h3" gutterBottom sx={{ fontWeight: 'bold', color: '#1976d2', mb: 2 }}>
+          📚 Learn to Code
+        </Typography>
 
-      <Box sx={{ display: 'flex', mt: 3 }}>
-        <Paper sx={{ width: 300, mr: 3 }}>
-          <List>
+        
+        {/* Language Selection for Guests */}
+        <Box sx={{ mb: 3, display: 'flex', justifyContent: 'center', gap: 2, flexWrap: 'wrap' }}>
+          {['python', 'java', 'cpp'].map((lang) => (
+            <Button
+              key={lang}
+              variant={language === lang ? 'contained' : 'outlined'}
+              color="primary"
+              onClick={() => navigate(`/learning/${lang}`)}
+              sx={{
+                minWidth: '120px',
+                fontWeight: language === lang ? 'bold' : 'normal',
+                backgroundColor: language === lang ? '#1976d2' : 'transparent'
+              }}
+            >
+              {lang.toUpperCase()}
+            </Button>
+          ))}
+        </Box>
+
+        {!user && (
+          <Alert severity="success" sx={{ mb: 3, maxWidth: '600px', mx: 'auto', bgcolor: '#e8f5e9', borderColor: '#4caf50', border: '2px solid' }}>
+            <Typography sx={{ mb: 1.5 }}>
+              🚀 <strong>Ready to start learning and complete quests?</strong>
+            </Typography>
+            <Typography sx={{ mb: 2 }}>
+              Create an account or login to unlock interactive quests, arcade earn XP points, and track your progress!
+            </Typography>
+            <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+              <Button variant="contained" size="medium" onClick={() => navigate('/register')} sx={{ backgroundColor: '#4caf50', '&:hover': { backgroundColor: '#45a049' } }}>
+                Get Started - Sign Up
+              </Button>
+              <Button variant="outlined" size="medium" onClick={() => navigate('/login')} sx={{ borderColor: '#4caf50', color: '#4caf50' }}>
+                Already a Member - Login
+              </Button>
+            </Stack>
+          </Alert>
+        )}
+      </Box>
+
+      <Box sx={{ display: 'flex', gap: 3, mt: 4 }}>
+        {/* Left Sidebar - Topics List */}
+        <Paper sx={{ width: 280, height: 'fit-content', position: 'sticky', top: 20, boxShadow: 3 }}>
+          <Box sx={{ bgcolor: '#1976d2', color: 'white', p: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+              📖 Topics
+            </Typography>
+          </Box>
+          <List sx={{ maxHeight: '70vh', overflow: 'auto' }}>
             {content.map((item, index) => (
               <React.Fragment key={item.id}>
                 <ListItem disablePadding>
                   <ListItemButton
                     selected={selectedTopic?.id === item.id}
                     onClick={() => setSelectedTopic(item)}
+                    sx={{
+                      '&.Mui-selected': {
+                        backgroundColor: '#e3f2fd',
+                        borderLeft: '4px solid #1976d2'
+                      },
+                      '&:hover': {
+                        backgroundColor: '#f5f5f5'
+                      }
+                    }}
                   >
                     <ListItemText
                       primary={`${index + 1}. ${item.title}`}
                       secondary={item.topic}
+                      primaryTypographyProps={{ sx: { fontWeight: selectedTopic?.id === item.id ? 'bold' : 'normal', fontSize: '14px' } }}
+                      secondaryTypographyProps={{ sx: { fontSize: '12px' } }}
                     />
                   </ListItemButton>
                 </ListItem>
@@ -77,31 +142,61 @@ function LearningContent() {
           </List>
         </Paper>
 
-        <Paper sx={{ flex: 1, p: 3 }}>
+        {/* Right Content Area */}
+        <Paper sx={{ flex: 1, p: 4, bgcolor: '#ffffff', boxShadow: 2, border: '1px solid #e0e0e0' }}>
           {selectedTopic ? (
             <>
-              <Typography variant="h5" gutterBottom>
+              <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#1976d2', mb: 3, pb: 2, borderBottom: '3px solid #1976d2' }}>
                 {selectedTopic.title}
               </Typography>
-              <Divider sx={{ mb: 2 }} />
-              <Typography variant="body1" paragraph>
+              <Typography variant="body1" paragraph sx={{ lineHeight: 2.2, color: '#000', fontSize: '17px', mb: 3, textAlign: 'justify', fontWeight: '500', letterSpacing: '0.3px' }}>
                 {selectedTopic.content}
               </Typography>
               {selectedTopic.code_examples && (
-                <Box sx={{ mt: 3, p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
-                  <Typography variant="h6" gutterBottom>
-                    Code Example
+                <Box sx={{ mt: 4, p: 3, bgcolor: '#f5f5f5', borderRadius: 2, border: '2px solid #1976d2', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                  <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#1565c0', mb: 2 }}>
+                    💻 Code Example
                   </Typography>
-                  <pre style={{ margin: 0, overflow: 'auto' }}>
-                    {selectedTopic.code_examples}
-                  </pre>
+                  <Box sx={{ p: 2, bgcolor: '#1e1e1e', borderRadius: 1, overflow: 'auto' }}>
+                    <pre style={{ margin: 0, color: '#d4d4d4', fontSize: '13px', lineHeight: '1.6', fontFamily: 'Courier New, monospace', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                      {selectedTopic.code_examples}
+                    </pre>
+                  </Box>
+                </Box>
+              )}
+              {user && (
+                <Box sx={{ mt: 4, p: 2, bgcolor: '#e8f5e9', border: '1px solid #4caf50', borderRadius: 2 }}>
+                  <Typography variant="body2" sx={{ color: '#2e7d32' }}>
+                    Some content may be missing. Please be patient. Head to <strong>Quests</strong> to practice your skills.
+                  </Typography>
                 </Box>
               )}
             </>
           ) : (
-            <Typography variant="body1" color="text.secondary">
-              Select a topic from the list to view its content.
-            </Typography>
+            <Box sx={{ textAlign: 'center', py: 8 }}>
+              <Typography variant="h6" color="text.secondary" sx={{ fontStyle: 'italic', fontSize: '18px', color: '#999' }}>
+                ☜ Select a topic from the left to get started!
+              </Typography>
+              {content.length > 0 && (
+                <Box sx={{ mt: 4 }}>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    Available topics:
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'center' }}>
+                    {content.map((item) => (
+                      <Chip
+                        key={item.id}
+                        label={item.title}
+                        onClick={() => setSelectedTopic(item)}
+                        variant="outlined"
+                        color="primary"
+                        sx={{ cursor: 'pointer' }}
+                      />
+                    ))}
+                  </Box>
+                </Box>
+              )}
+            </Box>
           )}
         </Paper>
       </Box>

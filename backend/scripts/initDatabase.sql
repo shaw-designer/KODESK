@@ -46,7 +46,8 @@ CREATE TABLE IF NOT EXISTS tasks (
     starter_code TEXT,
     solution_code TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(language, level_number)
 );
 
 -- User task progress

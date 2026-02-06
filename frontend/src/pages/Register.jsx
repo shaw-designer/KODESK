@@ -124,6 +124,10 @@ function Register() {
           <Typography variant="body2" align="center">
             Already have an account? <Link to="/login">Login here</Link>
           </Typography>
+
+          <Box textAlign="center" sx={{ mt: 2 }}>
+            <Button variant="outlined" onClick={() => navigate('/learning')}>Explore as Guest</Button>
+          </Box>
         </Paper>
       </Box>
     </Container>

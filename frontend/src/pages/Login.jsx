@@ -94,6 +94,10 @@ function Login() {
           <Typography variant="body2" align="center">
             Don't have an account? <Link to="/register">Register here</Link>
           </Typography>
+
+          <Box textAlign="center" sx={{ mt: 2 }}>
+            <Button variant="outlined" onClick={() => navigate('/learning')}>Explore as Guest</Button>
+          </Box>
         </Paper>
       </Box>
     </Container>

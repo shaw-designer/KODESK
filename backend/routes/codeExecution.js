@@ -20,12 +20,12 @@ const docker = new Docker({
 // Language configurations - images pinned for reproducibility
 const LANGUAGE_CONFIGS = {
   cpp: {
-    image: 'gcc:13.2',
+    image: 'gcc:latest',
     compileCommand: (code) => `echo '${code.replace(/'/g, "'\\''")}' > /tmp/code.cpp && g++ -o /tmp/code /tmp/code.cpp && /tmp/code`,
     timeout: 5000
   },
   java: {
-    image: 'amazoncorretto:17.0.9',
+    image: 'amazoncorretto:17',
     compileCommand: (code) => {
       const classMatch = code.match(/public\s+class\s+(\w+)/);
       const className = classMatch ? classMatch[1] : 'Solution';
@@ -34,7 +34,7 @@ const LANGUAGE_CONFIGS = {
     timeout: 5000
   },
   python: {
-    image: 'python:3.11.7-slim',
+    image: 'python:3.11',
     compileCommand: (code) => `python3 -c '${code.replace(/'/g, "'\\''")}'`,
     timeout: 5000
   }
@@ -231,6 +231,7 @@ router.post('/evaluate', authenticate, async (req, res) => {
     for (const testCase of testCases) {
       try {
         console.log(`[DEBUG] Running test case with input: ${JSON.stringify(testCase.input)}`);
+        console.log(`[DEBUG] Expected output: ${JSON.stringify(testCase.expected_output)}`);
         
         const { output, errors, exitCode } = await executeCode(
           code,
@@ -242,18 +243,18 @@ router.post('/evaluate', authenticate, async (req, res) => {
         const cleanedOutput = cleanString(output);
         const cleanedExpected = cleanString(testCase.expected_output || '');
 
-        debugLog('[DEBUG] Test case comparison:');
-        debugLog('[DEBUG] Expected:', JSON.stringify(cleanedExpected));
-        debugLog('[DEBUG] Actual:', JSON.stringify(cleanedOutput));
-        debugLog('[DEBUG] Exit code:', exitCode);
-        debugLog('[DEBUG] Match:', cleanedOutput === cleanedExpected);
+        console.log(`[DEBUG] Raw output: ${JSON.stringify(output)}`);
+        console.log(`[DEBUG] Cleaned output: ${JSON.stringify(cleanedOutput)}`);
+        console.log(`[DEBUG] Cleaned expected: ${JSON.stringify(cleanedExpected)}`);
+        console.log(`[DEBUG] Exit code: ${exitCode}`);
+        console.log(`[DEBUG] Match result: ${cleanedOutput === cleanedExpected}`);
 
         const passed = exitCode === 0 && cleanedOutput === cleanedExpected;
 
         results.push({
           input: testCase.input,
           expected_output: testCase.expected_output,
-          actual_output: output,
+          actual_output: cleanedOutput,
           errors: errors,
           passed: passed,
           is_hidden: testCase.is_hidden || false
