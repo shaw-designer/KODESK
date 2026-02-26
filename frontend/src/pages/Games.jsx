@@ -29,6 +29,7 @@ import SortChallenge from './games/SortChallenge';
 import PatternHacker from './games/PatternHacker';
 import SpeedTyper from './games/SpeedTyper';
 import NumberNinja from './games/NumberNinja';
+import HareyException from './games/HareyException';
 
 // Animations
 const float = keyframes`
@@ -251,6 +252,16 @@ const GAMES = [
     difficulty: 1,
     color: '#39FF14',
     component: NumberNinja,
+  },
+  {
+    id: 'harey-exception',
+    title: 'Hare-y Exception',
+    description: 'Whack bunnies to save them, but watch out for bombs! A fast-paced chaos game.',
+    icon: '🐰',
+    category: 'Speed',
+    difficulty: 2,
+    color: '#22C55E',
+    component: HareyException,
   },
 ];
 
