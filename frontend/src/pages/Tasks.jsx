@@ -13,238 +13,17 @@ import {
   LinearProgress,
   CircularProgress,
   Stack,
-  Tooltip,
   Avatar,
   Paper
 } from '@mui/material';
 import {
   Lock as LockIcon,
   CheckCircle as CheckCircleIcon,
-  LocalFireDepartment as FlameIcon,
   Star as StarIcon,
   FlashOn as ZapIcon,
-  LockOpen as UnlockIcon,
   ArrowForward as ArrowIcon
 } from '@mui/icons-material';
 import api from '../services/api';
-import { colors } from '../theme/modernTheme';
-import styled from 'styled-components';
-
-// Keyframe animations
-const slideInUp = `
-  @keyframes slideInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-`;
-
-const slideInLeft = `
-  @keyframes slideInLeft {
-    from {
-      opacity: 0;
-      transform: translateX(-30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-`;
-
-const pulse = `
-  @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 10px ${colors.primary}40; }
-    50% { box-shadow: 0 0 25px ${colors.primary}80; }
-  }
-`;
-
-const shimmer = `
-  @keyframes shimmer {
-    0% { background-position: -1000px 0; }
-    100% { background-position: 1000px 0; }
-  }
-`;
-
-const bounce = `
-  @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-  }
-`;
-
-// Styled components
-const QuestBoardHeader = styled(Paper)`
-  background: linear-gradient(135deg, ${colors.primary}30, ${colors.secondary}30);
-  border: 1px solid ${colors.primary}40;
-  border-radius: 16px;
-  padding: 30px;
-  margin-bottom: 30px;
-  backdrop-filter: blur(20px);
-  position: relative;
-  overflow: hidden;
-  animation: slideInLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-
-  ${slideInLeft}
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -10%;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, ${colors.primary}15, transparent);
-    border-radius: 50%;
-    animation: float 6s ease-in-out infinite;
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(20px) rotate(2deg); }
-  }
-`;
-
-const QuestCard = styled(Card)`
-  background: linear-gradient(135deg, ${colors.surface}FF, ${colors.surfaceLight}FF) !important;
-  border-radius: 14px;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-  animation: slideInUp 0.6s ease-out forwards;
-
-  ${slideInUp}
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 150px;
-    height: 150px;
-    background: radial-gradient(circle, ${colors.primary}30, transparent);
-    border-radius: 50%;
-  }
-
-  ${props => props.index !== undefined && `
-    animation-delay: ${0.05 * props.index}s;
-  `}
-
-  &:hover {
-    transform: translateY(-12px) scale(1.03) rotate(0.5deg);
-    border-color: ${colors.primary} !important;
-    box-shadow: 0 20px 50px ${colors.primary}40, inset 0 0 20px ${colors.primary}20 !important;
-
-    & .MuiCardContent-root {
-      transform: translateX(5px);
-    }
-
-    & .action-button {
-      transform: translateX(4px);
-      box-shadow: 0 6px 20px ${colors.primary}40;
-    }
-  }
-
-  ${props => props.completed && `
-    border: 2px solid ${colors.success} !important;
-    opacity: 1;
-    background: linear-gradient(135deg, ${colors.success}15, ${colors.success}05) !important;
-  `}
-
-  ${props => props.unlocked && !props.completed && `
-    border: 2px solid ${colors.primary}60 !important;
-    opacity: 1;
-  `}
-
-  ${props => !props.unlocked && `
-    border: 2px solid ${colors.primary}20 !important;
-    opacity: 0.7;
-    cursor: not-allowed;
-    transition: all 0.3s ease;
-
-    &:hover {
-      opacity: 0.8;
-      transform: translateY(0);
-    }
-  `}
-`;
-
-const DifficultyBadge = styled(Box)`
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-weight: 700;
-  font-size: 0.8rem;
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: scale(1.1);
-  }
-
-  ${props => {
-    let bgColor = colors.primary + '30';
-    let textColor = colors.primary;
-    let borderColor = colors.primary + '60';
-
-    if (props.difficulty === 'beginner') {
-      bgColor = colors.success + '30';
-      textColor = colors.success;
-      borderColor = colors.success + '60';
-    } else if (props.difficulty === 'intermediate') {
-      bgColor = colors.warning + '30';
-      textColor = colors.warning;
-      borderColor = colors.warning + '60';
-    } else if (props.difficulty === 'advanced') {
-      bgColor = colors.error + '30';
-      textColor = colors.error;
-      borderColor = colors.error + '60';
-    }
-
-    return `
-      background: ${bgColor};
-      color: ${textColor};
-      border: 1px solid ${borderColor};
-    `;
-  }}
-`;
-
-const RewardBox = styled(Box)`
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  padding: 8px 0;
-  animation: slideInUp 0.7s ease-out 0.3s both;
-
-  ${slideInUp}
-
-  & .reward-item {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: ${colors.accent};
-    transition: all 0.3s ease;
-
-    &:hover {
-      transform: scale(1.15) translateY(-2px);
-      filter: drop-shadow(0 4px 8px ${colors.accent}40);
-    }
-
-    & .MuiSvgIcon-root {
-      font-size: 1rem;
-      animation: bounce 2s ease-in-out infinite;
-    }
-  }
-`;
 
 function Tasks() {
   const { language } = useParams();
@@ -269,17 +48,17 @@ function Tasks() {
 
   const getDifficultyInfo = (difficulty) => {
     const difficulties = {
-      'beginner': { label: 'Novice', icon: '⭐', color: colors.success },
-      'intermediate': { label: 'Warrior', icon: '⚔️', color: colors.warning },
-      'advanced': { label: 'Master', icon: '👑', color: colors.error },
+      beginner: { label: 'Beginner', color: '#2e7d32' },
+      intermediate: { label: 'Intermediate', color: '#ed6c02' },
+      advanced: { label: 'Advanced', color: '#d32f2f' }
     };
-    return difficulties[difficulty] || { label: 'Unknown', icon: '?', color: colors.primary };
+    return difficulties[difficulty] || { label: 'Unknown', color: '#1f58b2' };
   };
 
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <CircularProgress sx={{ color: colors.primary }} />
+        <CircularProgress />
       </Box>
     );
   }
@@ -289,35 +68,43 @@ function Tasks() {
 
   return (
     <Container maxWidth="lg">
-      {/* Header */}
-      <QuestBoardHeader elevation={0}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          mb: 3,
+          borderRadius: 3,
+          border: '1px solid #d7e3f3',
+          background: 'linear-gradient(160deg, #eef4ff 0%, #e8f0ff 100%)'
+        }}
+      >
         <Grid container spacing={3} alignItems="center">
           <Grid item xs={12} md={8}>
-            <Typography variant="h3" sx={{ fontWeight: 800, mb: 1, color: colors.primary }}>
+            <Typography variant="h4" sx={{ fontWeight: 800, mb: 1, color: '#163761' }}>
               Quest Board
             </Typography>
-            <Typography variant="body1" sx={{ mb: 2, color: `${colors.text}CC` }}>
-              Complete increasingly challenging quests to master {language?.toUpperCase()}. Each completed quest earns XP and unlocks new challenges!
+            <Typography variant="body1" sx={{ mb: 2, color: '#4a6388' }}>
+              Complete all 10 quests for {language?.toUpperCase()} to master the track.
             </Typography>
             <Stack direction="row" spacing={3} flexWrap="wrap">
               <Box>
-                <Typography variant="caption" sx={{ color: `${colors.text}99` }}>
+                <Typography variant="caption" sx={{ color: '#6b7f9f' }}>
                   PROGRESS
                 </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 800, color: colors.primary }}>
+                <Typography variant="h6" sx={{ fontWeight: 800, color: '#1f58b2' }}>
                   {completedCount}/{tasks.length}
                 </Typography>
               </Box>
               <Box>
-                <Typography variant="caption" sx={{ color: `${colors.text}99` }}>
+                <Typography variant="caption" sx={{ color: '#6b7f9f' }}>
                   UNLOCKED
                 </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 800, color: colors.accent }}>
+                <Typography variant="h6" sx={{ fontWeight: 800, color: '#1f58b2' }}>
                   {unlockedCount}
                 </Typography>
               </Box>
               <Box sx={{ flex: 1 }}>
-                <Typography variant="caption" sx={{ color: `${colors.text}99` }}>
+                <Typography variant="caption" sx={{ color: '#6b7f9f' }}>
                   COMPLETION
                 </Typography>
                 <LinearProgress
@@ -327,9 +114,9 @@ function Tasks() {
                     mt: 1,
                     height: 6,
                     borderRadius: 3,
-                    background: `${colors.surfaceLight}80`,
+                    background: '#dbe7fb',
                     '& .MuiLinearProgress-bar': {
-                      background: `linear-gradient(90deg, ${colors.primary}, ${colors.accent})`,
+                      background: 'linear-gradient(90deg, #1f58b2, #3a78db)'
                     }
                   }}
                 />
@@ -341,7 +128,7 @@ function Tasks() {
               sx={{
                 width: 100,
                 height: 100,
-                background: `linear-gradient(135deg, ${colors.primary}, ${colors.accent})`,
+                background: 'linear-gradient(135deg, #1f58b2, #3a78db)',
                 fontSize: '3rem',
                 fontWeight: 800,
                 ml: { xs: 0, md: 'auto' }
@@ -351,133 +138,82 @@ function Tasks() {
             </Avatar>
           </Grid>
         </Grid>
-      </QuestBoardHeader>
+      </Paper>
 
-      {/* Quests Grid */}
       <Grid container spacing={3}>
-        {tasks.map((task, index) => {
+        {tasks.map((task) => {
           const diffInfo = getDifficultyInfo(task.difficulty_level);
           return (
             <Grid item xs={12} sm={6} md={4} key={task.id}>
-              <Tooltip
-                title={task.is_unlocked ? 'Click to start this quest!' : 'Complete previous quests to unlock'}
-                arrow
+              <Card
+                onClick={() => task.is_unlocked && navigate(`/task/${task.id}`)}
+                sx={{
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  borderRadius: 3,
+                  border: task.is_completed ? '1px solid #66bb6a' : task.is_unlocked ? '1px solid #c9daf5' : '1px solid #e2e8f2',
+                  backgroundColor: '#ffffff',
+                  opacity: task.is_unlocked ? 1 : 0.72,
+                  cursor: task.is_unlocked ? 'pointer' : 'not-allowed',
+                  transition: 'all 0.2s ease',
+                  '&:hover': task.is_unlocked ? { boxShadow: '0 10px 24px rgba(21, 62, 120, 0.14)', transform: 'translateY(-2px)' } : {}
+                }}
               >
-              <QuestCard
-              index={index}
-              unlocked={task.is_unlocked}
-              completed={task.is_completed}
-              onClick={() => task.is_unlocked && navigate(`/task/${task.id}`)}
-              sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-            >
-                  {/* Quest Header */}
-                  <CardContent sx={{ flex: 1 }}>
-                    {/* Status Badge */}
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 2 }}>
-                      <Box>
-                        <Chip
-                          icon={<FlameIcon />}
-                          label={`Quest ${task.level_number}`}
-                          size="small"
-                          sx={{
-                            background: `${colors.primary}20`,
-                            color: colors.primary,
-                            fontWeight: 700,
-                          }}
-                        />
-                      </Box>
-                      {task.is_completed && (
-                        <Tooltip title="Completed!">
-                          <CheckCircleIcon sx={{ color: colors.success, fontSize: '1.5rem' }} />
-                        </Tooltip>
-                      )}
-                      {!task.is_unlocked && (
-                        <Tooltip title="Locked">
-                          <LockIcon sx={{ color: `${colors.text}99`, fontSize: '1.5rem' }} />
-                        </Tooltip>
-                      )}
-                      {task.is_unlocked && !task.is_completed && (
-                        <Tooltip title="Available">
-                          <UnlockIcon sx={{ color: colors.accent, fontSize: '1.5rem' }} />
-                        </Tooltip>
-                      )}
+                <CardContent sx={{ flex: 1 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 2 }}>
+                    <Chip label={`Quest ${task.level_number}`} size="small" sx={{ fontWeight: 700, backgroundColor: '#e8f0ff', color: '#1f58b2' }} />
+                    {task.is_completed ? (
+                      <CheckCircleIcon sx={{ color: '#2e7d32' }} />
+                    ) : task.is_unlocked ? null : (
+                      <LockIcon sx={{ color: '#7d8ca3' }} />
+                    )}
+                  </Box>
+
+                  <Typography variant="h6" sx={{ fontWeight: 800, mb: 1, color: '#173a67' }}>
+                    {task.title}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#516988', mb: 2, minHeight: 44 }}>
+                    {task.description?.substring(0, 100)}...
+                  </Typography>
+
+                  <Chip
+                    label={diffInfo.label}
+                    size="small"
+                    variant="outlined"
+                    sx={{
+                      borderColor: diffInfo.color,
+                      color: diffInfo.color,
+                      fontWeight: 700
+                    }}
+                  />
+
+                  <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: '#234f95', fontWeight: 700, fontSize: 13 }}>
+                      <StarIcon sx={{ fontSize: 16 }} /> 100 XP
                     </Box>
-
-                    {/* Quest Title */}
-                    <Typography variant="h6" sx={{ fontWeight: 800, mb: 1 }}>
-                      {task.title}
-                    </Typography>
-
-                    {/* Quest Description */}
-                    <Typography variant="body2" sx={{ color: `${colors.text}99`, mb: 2, minHeight: '40px' }}>
-                      {task.description?.substring(0, 100)}...
-                    </Typography>
-
-                    {/* Difficulty */}
-                    <Box sx={{ mb: 2 }}>
-                      <DifficultyBadge difficulty={task.difficulty_level}>
-                        <span>{diffInfo.icon}</span>
-                        <span>{diffInfo.label}</span>
-                      </DifficultyBadge>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: '#234f95', fontWeight: 700, fontSize: 13 }}>
+                      <ZapIcon sx={{ fontSize: 16 }} /> 50 PTS
                     </Box>
+                  </Stack>
+                </CardContent>
 
-                    {/* Rewards */}
-                    <RewardBox>
-                      <Box className="reward-item">
-                        <StarIcon />
-                        <span>100 XP</span>
-                      </Box>
-                      <Box className="reward-item">
-                        <ZapIcon />
-                        <span>50 Points</span>
-                      </Box>
-                    </RewardBox>
-                  </CardContent>
-
-                  {/* Action Button */}
-                  <CardActions>
-                    <Button
-                      fullWidth
-                      variant={task.is_unlocked ? 'contained' : 'outlined'}
-                      disabled={!task.is_unlocked}
-                      endIcon={<ArrowIcon />}
-                      className="action-button"
-                      sx={{
-                        background: task.is_unlocked
-                          ? `linear-gradient(135deg, ${colors.primary}, ${colors.accent})`
-                          : 'transparent',
-                        color: task.is_unlocked ? colors.textDark : colors.primary,
-                        fontWeight: 700,
-                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        position: 'relative',
-                        overflow: 'hidden',
-                        '&::before': task.is_unlocked ? {
-                          content: '""',
-                          position: 'absolute',
-                          top: '50%',
-                          left: '50%',
-                          width: 0,
-                          height: 0,
-                          background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%)',
-                          borderRadius: '50%',
-                          transform: 'translate(-50%, -50%)',
-                          transition: 'width 0.6s ease, height 0.6s ease',
-                        } : {},
-                        '&:hover:not(:disabled)::before': task.is_unlocked ? {
-                          width: '300px',
-                          height: '300px',
-                        } : {},
-                        '&:disabled': {
-                          opacity: 0.6,
-                          cursor: 'not-allowed'
-                        }
-                      }}
-                    >
-                      {task.is_completed ? 'Completed ✓' : task.is_unlocked ? 'Start Quest' : 'Locked 🔒'}
-                    </Button>
-                  </CardActions>
-                </QuestCard>
-              </Tooltip>
+                <CardActions sx={{ px: 2, pb: 2 }}>
+                  <Button
+                    fullWidth
+                    variant={task.is_unlocked ? 'contained' : 'outlined'}
+                    disabled={!task.is_unlocked}
+                    endIcon={<ArrowIcon />}
+                    sx={{
+                      fontWeight: 700,
+                      bgcolor: task.is_unlocked ? '#1f58b2' : undefined,
+                      '&:hover': task.is_unlocked ? { bgcolor: '#18478f' } : undefined
+                    }}
+                  >
+                    {task.is_completed ? 'Completed' : task.is_unlocked ? 'Start Quest' : 'Locked'}
+                  </Button>
+                </CardActions>
+              </Card>
             </Grid>
           );
         })}
@@ -488,16 +224,16 @@ function Tasks() {
           sx={{
             p: 6,
             textAlign: 'center',
-            background: `linear-gradient(135deg, ${colors.surface}, ${colors.surfaceLight})`,
-            border: `1px solid ${colors.primary}40`,
+            background: 'linear-gradient(160deg, #f2f7ff 0%, #e8f0ff 100%)',
+            border: '1px solid #ceddf5',
             borderRadius: 3,
-            mt: 4,
+            mt: 4
           }}
         >
           <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
             No Quests Available
           </Typography>
-          <Typography variant="body2" sx={{ color: `${colors.text}99` }}>
+          <Typography variant="body2" sx={{ color: '#5d7495' }}>
             Check back later for new coding challenges!
           </Typography>
         </Paper>

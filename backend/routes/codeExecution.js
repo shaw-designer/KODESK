@@ -49,6 +49,17 @@ const cleanString = (str) => {
     .trim();
 };
 
+// Normalize output for judge comparison while keeping semantic text intact.
+const normalizeForComparison = (str = '') => {
+  const cleaned = cleanString(str);
+  if (!cleaned) return '';
+  return cleaned
+    .split('\n')
+    .map(line => line.trim())
+    .join('\n')
+    .trim();
+};
+
 // Execute code in Docker container
 async function executeCode(code, language, input = '') {
   const config = LANGUAGE_CONFIGS[language];
@@ -242,14 +253,16 @@ router.post('/evaluate', authenticate, async (req, res) => {
         // Clean both outputs for comparison
         const cleanedOutput = cleanString(output);
         const cleanedExpected = cleanString(testCase.expected_output || '');
+        const normalizedOutput = normalizeForComparison(cleanedOutput);
+        const normalizedExpected = normalizeForComparison(cleanedExpected);
 
         console.log(`[DEBUG] Raw output: ${JSON.stringify(output)}`);
         console.log(`[DEBUG] Cleaned output: ${JSON.stringify(cleanedOutput)}`);
         console.log(`[DEBUG] Cleaned expected: ${JSON.stringify(cleanedExpected)}`);
         console.log(`[DEBUG] Exit code: ${exitCode}`);
-        console.log(`[DEBUG] Match result: ${cleanedOutput === cleanedExpected}`);
+        console.log(`[DEBUG] Match result: ${normalizedOutput === normalizedExpected}`);
 
-        const passed = exitCode === 0 && cleanedOutput === cleanedExpected;
+        const passed = exitCode === 0 && normalizedOutput === normalizedExpected;
 
         results.push({
           input: testCase.input,

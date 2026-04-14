@@ -67,7 +67,14 @@ print(" ".join(str(i*i) for i in range(1, n+1)))'),
 ('File I/O Basics','Read lines from input and print them reversed (simple file I/O).','python','intermediate',10,NULL,'[{"input":"hello","expected_output":"olleh","is_hidden":false}]'::jsonb,'# File I/O basics
 s = input()
 # Your code here','s = input()
-print(s[::-1])') ON CONFLICT (language, level_number) DO NOTHING;
+print(s[::-1])') ON CONFLICT (language, level_number) DO UPDATE SET
+title = EXCLUDED.title,
+description = EXCLUDED.description,
+difficulty_level = EXCLUDED.difficulty_level,
+prerequisite_task_id = EXCLUDED.prerequisite_task_id,
+test_cases = EXCLUDED.test_cases,
+starter_code = EXCLUDED.starter_code,
+solution_code = EXCLUDED.solution_code;
 
 -- Java Tasks (levels 1..10)
 INSERT INTO tasks (title, description, language, difficulty_level, level_number, prerequisite_task_id, test_cases, starter_code, solution_code) VALUES
@@ -79,8 +86,15 @@ INSERT INTO tasks (title, description, language, difficulty_level, level_number,
 ('String Reversal','Reverse a string input.','java','beginner',6,NULL,'[{"input":"hello","expected_output":"olleh","is_hidden":false}]'::jsonb,'import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n        // Your code here\n    }\n}','import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n        System.out.println(new StringBuilder(s).reverse().toString());\n    }\n}'),
 ('Arrays and Loops','Print squares of numbers from 1..n separated by spaces.','java','intermediate',7,NULL,'[{"input":"5","expected_output":"1 4 9 16 25","is_hidden":false}]'::jsonb,'import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n        // Your code here\n    }\n}','import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n        StringBuilder sb = new StringBuilder();\n        for (int i=1;i<=n;i++) sb.append(i*i).append(i==n?"":" ");\n        System.out.println(sb.toString());\n    }\n}'),
 ('Basic I/O','Simple file I/O and string manipulation.','java','intermediate',8,NULL,'[{"input":"hello","expected_output":"olleh","is_hidden":false}]'::jsonb,'import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n        // Your code here\n    }\n}','import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n        System.out.println(new StringBuilder(s).reverse().toString());\n    }\n}'),
-('Collections Intro','Basic use of lists and collections.','java','intermediate',9,NULL,'[{"input":"3\na\nb\nc","expected_output":"a b c","is_hidden":true}]'::jsonb,'# Placeholder starter','// Placeholder solution'),
-('Files and Streams','Read lines and process them (files/streams practice).','java','intermediate',10,NULL,'[{"input":"line1","expected_output":"1 enil","is_hidden":true}]'::jsonb,'# Placeholder starter','// Placeholder solution') ON CONFLICT (language, level_number) DO NOTHING;
+('Collections Intro','Read N words and print them in the same order, space-separated.','java','intermediate',9,NULL,'[{"input":"3\njava\nis\nfun","expected_output":"java is fun","is_hidden":false},{"input":"4\na\nb\nc\nd","expected_output":"a b c d","is_hidden":true}]'::jsonb,'import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n        // Your code here\n    }\n}','import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n        StringBuilder sb = new StringBuilder();\n        for (int i = 0; i < n; i++) {\n            String word = sc.next();\n            sb.append(word);\n            if (i < n - 1) sb.append(" ");\n        }\n        System.out.println(sb.toString());\n    }\n}'),
+('Files and Streams','Read a line and print it reversed.','java','intermediate',10,NULL,'[{"input":"line1","expected_output":"1enil","is_hidden":false},{"input":"kodesk","expected_output":"ksedok","is_hidden":true}]'::jsonb,'import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n        // Your code here\n    }\n}','import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n        System.out.println(new StringBuilder(s).reverse().toString());\n    }\n}') ON CONFLICT (language, level_number) DO UPDATE SET
+title = EXCLUDED.title,
+description = EXCLUDED.description,
+difficulty_level = EXCLUDED.difficulty_level,
+prerequisite_task_id = EXCLUDED.prerequisite_task_id,
+test_cases = EXCLUDED.test_cases,
+starter_code = EXCLUDED.starter_code,
+solution_code = EXCLUDED.solution_code;
 
 -- C++ Tasks (levels 1..10)
 INSERT INTO tasks (title, description, language, difficulty_level, level_number, prerequisite_task_id, test_cases, starter_code, solution_code) VALUES
@@ -92,8 +106,15 @@ INSERT INTO tasks (title, description, language, difficulty_level, level_number,
 ('Reverse a String','Reverse a string input.','cpp','beginner',6,NULL,'[{"input":"hello","expected_output":"olleh","is_hidden":false}]'::jsonb,'#include <iostream>\n#include <string>\nusing namespace std;\n\nint main() {\n    string s;\n    getline(cin, s);\n    // Your code here\n    return 0;\n}','#include <iostream>\n#include <string>\nusing namespace std;\n\nint main() {\n    string s;\n    getline(cin, s);\n    reverse(s.begin(), s.end());\n    cout << s << endl;\n    return 0;\n}'),
 ('Vectors and Loops','Print squares of numbers from 1..n separated by spaces.','cpp','intermediate',7,NULL,'[{"input":"5","expected_output":"1 4 9 16 25","is_hidden":false}]'::jsonb,'#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    int n;cin >> n;\n    // Your code here\n    return 0;\n}','#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    int n;cin >> n;\n    for (int i=1;i<=n;i++) cout << i*i << (i==n?"":" ");\n    cout << endl;\n    return 0;\n}'),
 ('File I/O Basics','Simple file I/O and string processing.','cpp','intermediate',8,NULL,'[{"input":"hello","expected_output":"olleh","is_hidden":false}]'::jsonb,'#include <iostream>\n#include <string>\nusing namespace std;\n\nint main() {\n    string s;getline(cin, s);\n    // Your code here\n    return 0;\n}','#include <iostream>\n#include <string>\n#include <algorithm>\nusing namespace std;\n\nint main() {\n    string s;getline(cin, s);\n    reverse(s.begin(), s.end());\n    cout << s << endl;\n    return 0;\n}'),
-('STL Practice','Intro to STL containers and algorithms.','cpp','intermediate',9,NULL,'[{"input":"3\n1 2 3","expected_output":"1 2 3","is_hidden":true}]'::jsonb,'# Placeholder starter','// Placeholder solution'),
-('Streams and Files','Read lines and manipulate (streams & files).','cpp','intermediate',10,NULL,'[{"input":"line1","expected_output":"1 enil","is_hidden":true}]'::jsonb,'# Placeholder starter','// Placeholder solution') ON CONFLICT (language, level_number) DO NOTHING;
+('STL Practice','Read N integers and print them in ascending order.','cpp','intermediate',9,NULL,'[{"input":"5\n5 1 4 2 3","expected_output":"1 2 3 4 5","is_hidden":false},{"input":"4\n10 -1 7 7","expected_output":"-1 7 7 10","is_hidden":true}]'::jsonb,'#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n    vector<int> nums(n);\n    for (int i = 0; i < n; i++) cin >> nums[i];\n    // Your code here\n    return 0;\n}','#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n    vector<int> nums(n);\n    for (int i = 0; i < n; i++) cin >> nums[i];\n    sort(nums.begin(), nums.end());\n    for (int i = 0; i < n; i++) cout << nums[i] << (i + 1 == n ? "" : " ");\n    cout << endl;\n    return 0;\n}'),
+('Streams and Files','Read a line and print it reversed.','cpp','intermediate',10,NULL,'[{"input":"line1","expected_output":"1enil","is_hidden":false},{"input":"arcade","expected_output":"edacra","is_hidden":true}]'::jsonb,'#include <iostream>\n#include <string>\n#include <algorithm>\nusing namespace std;\n\nint main() {\n    string s;\n    getline(cin, s);\n    // Your code here\n    return 0;\n}','#include <iostream>\n#include <string>\n#include <algorithm>\nusing namespace std;\n\nint main() {\n    string s;\n    getline(cin, s);\n    reverse(s.begin(), s.end());\n    cout << s << endl;\n    return 0;\n}') ON CONFLICT (language, level_number) DO UPDATE SET
+title = EXCLUDED.title,
+description = EXCLUDED.description,
+difficulty_level = EXCLUDED.difficulty_level,
+prerequisite_task_id = EXCLUDED.prerequisite_task_id,
+test_cases = EXCLUDED.test_cases,
+starter_code = EXCLUDED.starter_code,
+solution_code = EXCLUDED.solution_code;
 
 -- Programmatically set prerequisite_task_id for each task: each level N (N>1) will have its prerequisite set to level N-1 for the same language
 UPDATE tasks t
@@ -126,7 +147,17 @@ INSERT INTO games (title, description, level_number, game_type) VALUES
 ('Java Mini Game 7', 'Mini game for Java level 7', 7, 'mini'),
 ('Java Mini Game 8', 'Mini game for Java level 8', 8, 'mini'),
 ('Java Mini Game 9', 'Mini game for Java level 9', 9, 'mini'),
-('Java Mini Game 10', 'Mini game for Java level 10', 10, 'mini');
+('Java Mini Game 10', 'Mini game for Java level 10', 10, 'mini'),
+('C++ Mini Game 1', 'Mini game for C++ level 1', 1, 'mini'),
+('C++ Mini Game 2', 'Mini game for C++ level 2', 2, 'mini'),
+('C++ Mini Game 3', 'Mini game for C++ level 3', 3, 'mini'),
+('C++ Mini Game 4', 'Mini game for C++ level 4', 4, 'mini'),
+('C++ Mini Game 5', 'Mini game for C++ level 5', 5, 'mini'),
+('C++ Mini Game 6', 'Mini game for C++ level 6', 6, 'mini'),
+('C++ Mini Game 7', 'Mini game for C++ level 7', 7, 'mini'),
+('C++ Mini Game 8', 'Mini game for C++ level 8', 8, 'mini'),
+('C++ Mini Game 9', 'Mini game for C++ level 9', 9, 'mini'),
+('C++ Mini Game 10', 'Mini game for C++ level 10', 10, 'mini');
 
 
 

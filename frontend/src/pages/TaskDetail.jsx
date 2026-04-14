@@ -143,7 +143,7 @@ function TaskDetail() {
     try {
       const response = await api.get(`/tasks/${taskId}`);
       setTask(response.data.task);
-      setCode('');
+      setCode(response.data.task?.starter_code || '');
     } catch (error) {
       console.error('Error fetching task:', error);
       setError('Failed to load task');
@@ -237,37 +237,24 @@ function TaskDetail() {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Box sx={{ animation: `${slideDown} 0.6s ease-out` }}>
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, color: '#1976d2', mb: 1, animation: `${float} 3s ease-in-out infinite` }}>
+        <Typography variant="h4" gutterBottom sx={{ fontWeight: 800, color: '#163761', mb: 1 }}>
           {task.title}
         </Typography>
-        <Box display="flex" gap={1} mb={2} sx={{ animation: `${slideDown} 0.6s ease-out 0.1s both` }}>
+        <Typography variant="body1" sx={{ color: '#4c6588', mb: 2 }}>
+          Solve the quest, run your code, then submit to validate against all test cases.
+        </Typography>
+        <Box display="flex" gap={1} mb={2}>
           <Chip 
             label={task.difficulty_level} 
             color="primary" 
             size="small"
-            sx={{
-              fontWeight: 600,
-              transition: 'all 0.3s ease',
-              cursor: 'pointer',
-              '&:hover': {
-                transform: 'scale(1.08)',
-                boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)'
-              }
-            }}
+            sx={{ fontWeight: 700, backgroundColor: '#e8f0ff', color: '#1f58b2' }}
           />
           <Chip 
             label={task.language.toUpperCase()} 
             variant="outlined" 
             size="small"
-            sx={{
-              fontWeight: 600,
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                transform: 'scale(1.08)',
-                color: '#1565c0',
-                borderColor: '#1565c0'
-              }
-            }}
+            sx={{ fontWeight: 700 }}
           />
         </Box>
       </Box>
@@ -277,27 +264,19 @@ function TaskDetail() {
           <Paper sx={{ 
             p: 3, 
             mb: 2,
-            borderRadius: 2,
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-            '&:hover': {
-              boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
-              transform: 'translateY(-4px)'
-            }
+            borderRadius: 3,
+            border: '1px solid #d8e4f5',
+            boxShadow: '0 8px 22px rgba(21, 62, 120, 0.10)'
           }}>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: '#1565c0', mb: 2 }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 800, color: '#164a98', mb: 2 }}>
               📝 Problem Description
             </Typography>
             <Typography 
               variant="body1" 
               paragraph 
               sx={{ 
-                lineHeight: 1.8,
-                color: '#333',
-                '&:hover': {
-                  color: '#1976d2'
-                },
-                transition: 'color 0.3s ease'
+                lineHeight: 1.9,
+                color: '#1f2a3a'
               }}
             >
               {task.description}
@@ -306,20 +285,16 @@ function TaskDetail() {
 
           <Paper sx={{ 
             p: 0,
-            borderRadius: 2,
+            borderRadius: 3,
             overflow: 'hidden',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+            border: '1px solid #d8e4f5',
+            boxShadow: '0 8px 22px rgba(21, 62, 120, 0.10)',
             bgcolor: '#ffffff',
-            animation: `${slideLeft} 0.8s ease-out 0.3s both`,
-            transition: 'all 0.4s ease',
-            '&:hover': {
-              boxShadow: '0 12px 40px rgba(25, 118, 210, 0.2)',
-              transform: 'translateY(-4px)'
-            }
+            animation: `${slideLeft} 0.8s ease-out 0.3s both`
           }}>
             {/* Header */}
             <Box sx={{
-              background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
+              background: 'linear-gradient(135deg, #1f58b2 0%, #17468e 100%)',
               color: 'white',
               p: 2.5,
               display: 'flex',
@@ -340,7 +315,7 @@ function TaskDetail() {
             }}>
               <Box sx={{ position: 'relative', zIndex: 1 }}>
                 <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <span style={{ animation: `${float} 2s ease-in-out infinite` }}>💻</span> Code Editor
+                  <span>💻</span> Code Editor
                 </Typography>
                 <Typography variant="caption" sx={{ opacity: 0.9, mt: 0.5, display: 'block' }}>
                   {task?.language.toUpperCase()} • Characters: {code.length}
@@ -393,10 +368,10 @@ function TaskDetail() {
                 disabled={false}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    backgroundColor: '#f5f7fa',
-                    border: '2px solid #e0e0e0',
+                    backgroundColor: '#f8fbff',
+                    border: '1px solid #d3e0f4',
                     borderRadius: '8px',
-                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transition: 'all 0.2s ease',
                     position: 'relative',
                     '&::before': {
                       content: '""',
@@ -410,13 +385,13 @@ function TaskDetail() {
                       pointerEvents: 'none'
                     },
                     '&:hover': {
-                      borderColor: '#1976d2',
-                      boxShadow: '0 4px 16px rgba(25, 118, 210, 0.12)',
-                      backgroundColor: '#fafbfc'
+                      borderColor: '#1f58b2',
+                      boxShadow: '0 2px 10px rgba(31, 88, 178, 0.12)',
+                      backgroundColor: '#ffffff'
                     },
                     '&.Mui-focused': {
-                      borderColor: '#1976d2',
-                      boxShadow: '0 0 0 4px rgba(25, 118, 210, 0.15)',
+                      borderColor: '#1f58b2',
+                      boxShadow: '0 0 0 3px rgba(31, 88, 178, 0.14)',
                       backgroundColor: '#ffffff'
                     }
                   },
@@ -461,16 +436,16 @@ function TaskDetail() {
                 onClick={handleRun}
                 disabled={loading}
                 sx={{
-                  px: 2.5,
+                  px: 2.8,
                   py: 1,
-                  borderColor: '#1976d2',
-                  color: '#1976d2',
+                  borderColor: '#1f58b2',
+                  color: '#1f58b2',
                   fontWeight: 600,
                   fontSize: '13.5px',
                   letterSpacing: '0.3px',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   borderRadius: '8px',
-                  border: '2px solid #1976d2',
+                  border: '1px solid #1f58b2',
                   position: 'relative',
                   overflow: 'hidden',
                   '&::before': {
@@ -486,11 +461,11 @@ function TaskDetail() {
                     transition: 'width 0.6s ease, height 0.6s ease'
                   },
                   '&:hover:not(:disabled)': {
-                    backgroundColor: 'rgba(25, 118, 210, 0.06)',
-                    borderColor: '#1565c0',
-                    color: '#1565c0',
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(25, 118, 210, 0.2)',
+                    backgroundColor: 'rgba(31, 88, 178, 0.08)',
+                    borderColor: '#18478f',
+                    color: '#18478f',
+                    transform: 'translateY(-1px)',
+                    boxShadow: '0 4px 12px rgba(31, 88, 178, 0.2)',
                     '&::before': {
                       width: '300px',
                       height: '300px'
@@ -515,7 +490,7 @@ function TaskDetail() {
                 sx={{
                   px: 3,
                   py: 1,
-                  background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
+                  background: 'linear-gradient(135deg, #1f58b2 0%, #17468e 100%)',
                   fontWeight: 700,
                   fontSize: '13.5px',
                   letterSpacing: '0.3px',
@@ -536,8 +511,8 @@ function TaskDetail() {
                     transition: 'left 0.5s ease'
                   },
                   '&:hover:not(:disabled)': {
-                    boxShadow: '0 8px 25px rgba(25, 118, 210, 0.4)',
-                    transform: 'translateY(-3px)',
+                    boxShadow: '0 8px 25px rgba(31, 88, 178, 0.4)',
+                    transform: 'translateY(-2px)',
                     '&::before': {
                       left: '100%'
                     }
@@ -620,13 +595,10 @@ function TaskDetail() {
             <Paper sx={{ 
               p: 3, 
               mb: 2,
-              borderRadius: 2,
+              borderRadius: 3,
+              border: '1px solid #d8e4f5',
               animation: `${slideUp} 0.6s ease-out`,
-              transition: 'all 0.4s ease',
-              '&:hover': {
-                boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
-                transform: 'translateY(-4px)'
-              }
+              boxShadow: '0 8px 22px rgba(21, 62, 120, 0.10)'
             }}>
               <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: '#1565c0', mb: 2 }}>
                 ✓ Evaluation Results

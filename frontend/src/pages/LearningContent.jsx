@@ -228,29 +228,11 @@ function LearningContent() {
 
   const learningHomeView = (
     <Box>
-      <Paper
-        elevation={0}
-        sx={{
-          p: { xs: 2.5, md: 4 },
-          mb: 3,
-          borderRadius: 3,
-          border: '1px solid #d7e3f4',
-          background: 'linear-gradient(140deg, #f8fbff 0%, #eef5ff 100%)'
-        }}
-      >
-        <Typography variant="h4" sx={{ fontWeight: 800, color: '#12305d', mb: 1 }}>
-          Learning Hub
-        </Typography>
-        <Typography variant="body1" sx={{ color: '#385176', maxWidth: 780 }}>
-          Choose a language track and continue your journey. This page is only for signed-in learners, separate from the guest launchpad.
-        </Typography>
-      </Paper>
-
       <Box
         sx={{
           display: 'grid',
           gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' },
-          gap: 2
+          gap: 2.2
         }}
       >
         {[
@@ -262,25 +244,37 @@ function LearningContent() {
             key={item.label}
             elevation={0}
             sx={{
-              p: 2.4,
+              p: 2.6,
               borderRadius: 3,
-              border: '1px solid #dce6f5',
-              backgroundColor: '#fff',
+              border: '1px solid #d8e2f2',
+              background: 'linear-gradient(160deg, #eef4ff 0%, #e5eeff 100%)',
               transition: 'all 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              minHeight: 220,
               '&:hover': {
                 transform: 'translateY(-2px)',
                 boxShadow: '0 8px 18px rgba(31, 62, 112, 0.12)'
               }
             }}
           >
-            <Typography variant="h6" sx={{ fontWeight: 700, color: '#183a6b', mb: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, color: '#163761', mb: 1 }}>
               {item.label}
             </Typography>
-            <Typography variant="body2" sx={{ color: '#4e6281', mb: 2.2 }}>
+            <Typography variant="body2" sx={{ color: '#42597a', mb: 2.2, flex: 1 }}>
               {item.description}
             </Typography>
-            <Button variant="contained" onClick={() => navigate(item.route)}>
-              Open {item.label}
+            <Button
+              variant="contained"
+              onClick={() => navigate(item.route)}
+              sx={{
+                alignSelf: 'flex-start',
+                bgcolor: '#1e5ab6',
+                fontWeight: 700,
+                '&:hover': { bgcolor: '#17478f' }
+              }}
+            >
+              Learn {item.label}
             </Button>
           </Paper>
         ))}
@@ -291,16 +285,29 @@ function LearningContent() {
   const languageView = (
     <div>
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
+        <Typography variant="h4" gutterBottom sx={{ fontWeight: 800, color: '#15345f' }}>
           Learning {language?.toUpperCase()}
+        </Typography>
+        <Typography variant="body1" sx={{ color: '#577098' }}>
+          Follow topics in order and practice each concept before moving to quests.
         </Typography>
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 3, mt: 4 }}>
+      <Box sx={{ display: 'flex', gap: 3, mt: 3.2 }}>
         {/* Left Sidebar - Topics List */}
-        <Paper sx={{ width: 280, height: 'fit-content', position: 'sticky', top: 20, boxShadow: 3 }}>
-          <Box sx={{ bgcolor: '#1976d2', color: 'white', p: 2 }}>
-            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+        <Paper
+          sx={{
+            width: 300,
+            height: 'fit-content',
+            position: 'sticky',
+            top: 20,
+            boxShadow: '0 10px 26px rgba(19, 49, 92, 0.14)',
+            borderRadius: 3,
+            border: '1px solid #d7e3f3'
+          }}
+        >
+          <Box sx={{ bgcolor: '#1f58b2', color: 'white', p: 2.2, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}>
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>
               📖 Topics
             </Typography>
           </Box>
@@ -313,11 +320,11 @@ function LearningContent() {
                     onClick={() => setSelectedTopic(item)}
                     sx={{
                       '&.Mui-selected': {
-                        backgroundColor: '#e3f2fd',
-                        borderLeft: '4px solid #1976d2'
+                        backgroundColor: '#e8f0ff',
+                        borderLeft: '4px solid #1f58b2'
                       },
                       '&:hover': {
-                        backgroundColor: '#f5f5f5'
+                        backgroundColor: '#f5f8ff'
                       }
                     }}
                   >
@@ -336,18 +343,27 @@ function LearningContent() {
         </Paper>
 
         {/* Right Content Area */}
-        <Paper sx={{ flex: 1, p: 4, bgcolor: '#ffffff', boxShadow: 2, border: '1px solid #e0e0e0' }}>
+        <Paper
+          sx={{
+            flex: 1,
+            p: 4,
+            bgcolor: '#ffffff',
+            boxShadow: '0 12px 30px rgba(19, 49, 92, 0.12)',
+            border: '1px solid #dce6f4',
+            borderRadius: 3
+          }}
+        >
           {selectedTopic ? (
             <div>
-              <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#1976d2', mb: 3, pb: 2, borderBottom: '3px solid #1976d2' }}>
+              <Typography variant="h4" gutterBottom sx={{ fontWeight: 800, color: '#1f58b2', mb: 3, pb: 2, borderBottom: '3px solid #1f58b2' }}>
                 {selectedTopic.title}
               </Typography>
-              <Typography variant="body1" paragraph sx={{ lineHeight: 2.2, color: '#000', fontSize: '17px', mb: 3, textAlign: 'justify', fontWeight: '500', letterSpacing: '0.3px' }}>
+              <Typography variant="body1" paragraph sx={{ lineHeight: 2, color: '#1f2a3a', fontSize: '16px', mb: 3 }}>
                 {selectedTopic.content}
               </Typography>
               {selectedTopic.code_examples && (
-                <Box sx={{ mt: 4, p: 3, bgcolor: '#f5f5f5', borderRadius: 2, border: '2px solid #1976d2', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-                  <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#1565c0', mb: 2 }}>
+                <Box sx={{ mt: 4, p: 3, bgcolor: '#f2f7ff', borderRadius: 2.5, border: '2px solid #1f58b2', boxShadow: '0 8px 22px rgba(31, 88, 178, 0.12)' }}>
+                  <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: '#164a98', mb: 2 }}>
                     💻 Code Example
                   </Typography>
                   <Box sx={{ p: 2, bgcolor: '#1e1e1e', borderRadius: 1, overflow: 'auto' }}>
