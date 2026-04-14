@@ -14,9 +14,33 @@ import {
 import api from '../services/api';
 
 const languages = [
-  { id: 'cpp', name: 'C++', icon: '⚡', description: 'Learn C++ programming with hands-on challenges' },
-  { id: 'java', name: 'Java', icon: '☕', description: 'Master Java programming fundamentals' },
-  { id: 'python', name: 'Python', icon: '🐍', description: 'Start your Python journey with interactive coding' }
+  {
+    id: 'cpp',
+    name: 'C++',
+    icon: '⚡',
+    description: 'Learn C++ programming with hands-on challenges',
+    color: '#0d8de0',
+    bg: 'linear-gradient(155deg, #e7f5ff 0%, #d9eeff 100%)',
+    border: '#b9dcf6'
+  },
+  {
+    id: 'java',
+    name: 'Java',
+    icon: '☕',
+    description: 'Master Java programming fundamentals',
+    color: '#d97706',
+    bg: 'linear-gradient(155deg, #fff4e3 0%, #ffecd0 100%)',
+    border: '#f3d8ad'
+  },
+  {
+    id: 'python',
+    name: 'Python',
+    icon: '🐍',
+    description: 'Start your Python journey with interactive coding',
+    color: '#3f8f3f',
+    bg: 'linear-gradient(155deg, #edfbe8 0%, #dcf4d4 100%)',
+    border: '#c6e8bc'
+  }
 ];
 
 function LanguageSelection() {
@@ -90,7 +114,7 @@ function LanguageSelection() {
                 borderRadius: 3,
                 border: selectedLanguage === language.id ? '2px solid #1f58b2' : '1px solid #d8e4f5',
                 boxShadow: selectedLanguage === language.id ? '0 12px 26px rgba(20, 54, 107, 0.14)' : 'none',
-                background: 'linear-gradient(160deg, #ffffff 0%, #f8fbff 100%)'
+                background: language.bg
               }}
             >
               <CardContent sx={{ flexGrow: 1 }}>
@@ -120,7 +144,7 @@ function LanguageSelection() {
                     minWidth: 130,
                     fontWeight: 700,
                     ...(selectedLanguage !== language.id
-                      ? { bgcolor: '#1f58b2', '&:hover': { bgcolor: '#18488f' } }
+                      ? { bgcolor: language.color, '&:hover': { filter: 'brightness(0.9)' } }
                       : { borderColor: '#1f58b2', color: '#1f58b2' })
                   }}
                 >

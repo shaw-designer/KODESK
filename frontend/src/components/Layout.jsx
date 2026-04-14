@@ -156,11 +156,6 @@ function Layout() {
         navigate(path);
         setMobileOpen(false);
       })}
-      <Box sx={{ mt: 'auto', p: 2 }}>
-        <Button fullWidth variant="outlined" startIcon={<LogoutIcon />} onClick={handleLogout} sx={{ borderColor: '#ff7c9a', color: '#ffb6c6' }}>
-          Logout
-        </Button>
-      </Box>
     </Drawer>
   );
 
@@ -225,11 +220,7 @@ function Layout() {
           </>
         )}
 
-        <Box sx={{ p: 2, mt: 'auto' }}>
-          <Button fullWidth variant="outlined" onClick={handleLogout} startIcon={<LogoutIcon />} sx={{ borderColor: '#ff7c9a', color: '#ffb6c6', minWidth: 0 }}>
-            {!desktopCollapsed && 'Logout'}
-          </Button>
-        </Box>
+        <Box sx={{ p: 2, mt: 'auto' }} />
       </Box>
 
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', ml: { xs: 0, md: `${desktopDrawerWidth}px` }, transition: 'margin-left 0.22s ease' }}>
@@ -265,7 +256,14 @@ function Layout() {
                 {user?.username?.[0]?.toUpperCase()}
               </Avatar>
             </Tooltip>
-            <IconButton color="inherit" onClick={handleLogout} sx={{ ml: 0.6 }}>
+            <IconButton
+              onClick={handleLogout}
+              sx={{
+                ml: 0.6,
+                color: '#ff7c9a',
+                '&:hover': { color: '#ff99b2', backgroundColor: 'rgba(255, 124, 154, 0.14)' }
+              }}
+            >
               <LogoutIcon />
             </IconButton>
           </Toolbar>
