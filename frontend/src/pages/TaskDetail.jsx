@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { keyframes } from '@mui/system';
 import {
   Container,
   Typography,
@@ -19,116 +18,11 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import api from '../services/api';
 
-// Define animations
-const slideDown = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
-
-const slideUp = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
-
-const slideLeft = keyframes`
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-`;
-
-const slideRight = keyframes`
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-`;
-
-const pulse = keyframes`
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-`;
-
-const bounce = keyframes`
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-`;
-
-const shimmer = keyframes`
-  0% {
-    background-position: -1000px 0;
-  }
-  100% {
-    background-position: 1000px 0;
-  }
-`;
-
-const glow = keyframes`
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(25, 118, 210, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 40px rgba(25, 118, 210, 0.6);
-  }
-`;
-
-const successCheckmark = keyframes`
-  0% {
-    transform: scale(0) rotate(-45deg);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.2) rotate(0);
-  }
-  100% {
-    transform: scale(1) rotate(0);
-    opacity: 1;
-  }
-`;
-
-const float = keyframes`
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-`;
-
 function TaskDetail() {
   const { taskId } = useParams();
   const navigate = useNavigate();
   const [task, setTask] = useState(null);
   const [code, setCode] = useState('');
-  const [hasUserInput, setHasUserInput] = useState(false);
   const [output, setOutput] = useState('');
   const [loading, setLoading] = useState(false);
   const [evaluating, setEvaluating] = useState(false);
@@ -143,9 +37,9 @@ function TaskDetail() {
     try {
       const response = await api.get(`/tasks/${taskId}`);
       setTask(response.data.task);
-      setCode(response.data.task?.starter_code || '');
-    } catch (error) {
-      console.error('Error fetching task:', error);
+      setCode('');
+    } catch (fetchError) {
+      console.error('Error fetching task:', fetchError);
       setError('Failed to load task');
     }
   };
@@ -166,32 +60,10 @@ function TaskDetail() {
         language: task.language,
         input: ''
       });
-
-      // Log raw response for debugging
-      console.log('[DEBUG] Raw response from backend:', response.data);
-      console.log('[DEBUG] Output:', JSON.stringify(response.data.output));
-      console.log('[DEBUG] Errors:', JSON.stringify(response.data.errors));
-
-      // Prefer output over errors, but show both if needed
-      let outputText = '';
-      if (response.data.output && response.data.output.trim()) {
-        outputText = response.data.output;
-      } else if (response.data.errors && response.data.errors.trim()) {
-        outputText = response.data.errors;
-      } else {
-        outputText = 'No output';
-      }
-      
-      // Clean output on frontend side as well
-      const cleanedOutput = outputText
-        .replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, '') // Remove control chars
-        .replace(/\r\n/g, '\n') // Normalize line endings
-        .replace(/\r/g, '\n');
-      
-      console.log('[DEBUG] Cleaned output for display:', cleanedOutput);
-      setOutput(cleanedOutput);
-    } catch (error) {
-      setError(error.response?.data?.message || 'Code execution failed');
+      const outputText = response.data.output?.trim() ? response.data.output : (response.data.errors || 'No output');
+      setOutput(outputText);
+    } catch (runError) {
+      setError(runError.response?.data?.message || 'Code execution failed');
     } finally {
       setLoading(false);
     }
@@ -213,18 +85,12 @@ function TaskDetail() {
         code,
         language: task.language
       });
-
-      console.log('[DEBUG] Evaluation response:', response.data);
       setResult(response.data);
-      
       if (response.data.allPassed) {
-        // Show success message for 3 seconds before redirecting
-        setTimeout(() => {
-          navigate(`/tasks/${task.language}`);
-        }, 3000);
+        setTimeout(() => navigate(`/tasks/${task.language}`), 3000);
       }
-    } catch (error) {
-      setError(error.response?.data?.message || 'Evaluation failed');
+    } catch (submitError) {
+      setError(submitError.response?.data?.message || 'Evaluation failed');
     } finally {
       setEvaluating(false);
     }
@@ -234,338 +100,118 @@ function TaskDetail() {
     return <LinearProgress />;
   }
 
+  const sharedPanelStyle = {
+    borderRadius: 3,
+    border: '1px solid #c6dbf6',
+    background: 'linear-gradient(160deg, #eef5ff 0%, #e8f1ff 100%)',
+    boxShadow: '0 10px 24px rgba(24, 64, 120, 0.10)'
+  };
+
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box sx={{ animation: `${slideDown} 0.6s ease-out` }}>
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: 800, color: '#163761', mb: 1 }}>
+      <Box>
+        <Typography variant="h4" gutterBottom sx={{ fontWeight: 800, color: '#173c6b', mb: 0.8 }}>
           {task.title}
         </Typography>
-        <Typography variant="body1" sx={{ color: '#4c6588', mb: 2 }}>
-          Solve the quest, run your code, then submit to validate against all test cases.
+        <Typography variant="body1" sx={{ color: '#4a6488', mb: 2 }}>
+          Build your own solution and validate it against all hidden and visible test cases.
         </Typography>
-        <Box display="flex" gap={1} mb={2}>
-          <Chip 
-            label={task.difficulty_level} 
-            color="primary" 
-            size="small"
-            sx={{ fontWeight: 700, backgroundColor: '#e8f0ff', color: '#1f58b2' }}
-          />
-          <Chip 
-            label={task.language.toUpperCase()} 
-            variant="outlined" 
-            size="small"
-            sx={{ fontWeight: 700 }}
-          />
+        <Box display="flex" gap={1} mb={2.5}>
+          <Chip label={task.difficulty_level} size="small" sx={{ fontWeight: 700, backgroundColor: '#dfeeff', color: '#1f58b2' }} />
+          <Chip label={task.language.toUpperCase()} size="small" variant="outlined" sx={{ fontWeight: 700 }} />
         </Box>
       </Box>
 
       <Grid container spacing={3}>
-        <Grid item xs={12} md={6} sx={{ animation: `${slideLeft} 0.7s ease-out 0.2s both` }}>
-          <Paper sx={{ 
-            p: 3, 
-            mb: 2,
-            borderRadius: 3,
-            border: '1px solid #d8e4f5',
-            boxShadow: '0 8px 22px rgba(21, 62, 120, 0.10)'
-          }}>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: 800, color: '#164a98', mb: 2 }}>
-              📝 Problem Description
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ ...sharedPanelStyle, p: 3, mb: 2 }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 800, color: '#1f58b2', mb: 1.4 }}>
+              Problem Description
             </Typography>
-            <Typography 
-              variant="body1" 
-              paragraph 
-              sx={{ 
-                lineHeight: 1.9,
-                color: '#1f2a3a'
-              }}
-            >
+            <Typography variant="body1" sx={{ lineHeight: 1.9, color: '#1f2d3d' }}>
               {task.description}
             </Typography>
           </Paper>
 
-          <Paper sx={{ 
-            p: 0,
-            borderRadius: 3,
-            overflow: 'hidden',
-            border: '1px solid #d8e4f5',
-            boxShadow: '0 8px 22px rgba(21, 62, 120, 0.10)',
-            bgcolor: '#ffffff',
-            animation: `${slideLeft} 0.8s ease-out 0.3s both`
-          }}>
-            {/* Header */}
-            <Box sx={{
-              background: 'linear-gradient(135deg, #1f58b2 0%, #17468e 100%)',
-              color: 'white',
-              p: 2.5,
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              position: 'relative',
-              overflow: 'hidden',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: 0,
-                left: '-100%',
-                width: '100%',
-                height: '100%',
-                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
-                animation: `${shimmer} 3s infinite`
-              }
-            }}>
-              <Box sx={{ position: 'relative', zIndex: 1 }}>
-                <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <span>💻</span> Code Editor
-                </Typography>
-                <Typography variant="caption" sx={{ opacity: 0.9, mt: 0.5, display: 'block' }}>
-                  {task?.language.toUpperCase()} • Characters: {code.length}
-                </Typography>
-              </Box>
-            </Box>
-
-            {/* Hint Section */}
-            {!hasUserInput && (
-              <Box sx={{ 
-                p: 2, 
-                bgcolor: '#f8f9fa',
-                borderBottom: '1px solid #e0e0e0',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1.5,
-                animation: `${slideDown} 0.5s ease-out`,
-                transition: 'all 0.3s ease'
-              }}>
-                <Box sx={{ fontSize: '20px', animation: `${bounce} 2s ease-in-out infinite` }}>💡</Box>
-                <Box>
-                  <Typography sx={{ fontSize: '13px', fontWeight: 600, color: '#1976d2', mb: 0.3 }}>
-                    Getting Started
-                  </Typography>
-                  <Typography sx={{ fontSize: '13px', color: '#666', lineHeight: 1.4 }}>
-                    Write your {task?.language || 'code'} solution below. Use Run Code to test your logic before submitting.
-                  </Typography>
-                </Box>
-              </Box>
-            )}
-
-            {/* Code Editor */}
-            <Box sx={{ p: 2, bgcolor: '#ffffff' }}>
-              <TextField
-                fullWidth
-                multiline
-                rows={16}
-                value={code}
-                onChange={(e) => {
-                  setCode(e.target.value);
-                  setHasUserInput(e.target.value.length > 0);
-                }}
-                onBlur={() => {
-                  if (code.trim().length === 0) setHasUserInput(false);
-                }}
-                placeholder="// Start typing your code here..."
-                variant="outlined"
-                autoComplete="off"
-                spellCheck="false"
-                disabled={false}
+          <Paper sx={{ ...sharedPanelStyle, p: 3 }}>
+            <Box
+              sx={{
+                borderRadius: 2,
+                overflow: 'hidden',
+                border: '1px solid #203854'
+              }}
+            >
+              <Box
                 sx={{
-                  '& .MuiOutlinedInput-root': {
-                    backgroundColor: '#f8fbff',
-                    border: '1px solid #d3e0f4',
-                    borderRadius: '8px',
-                    transition: 'all 0.2s ease',
-                    position: 'relative',
-                    '&::before': {
-                      content: '""',
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      background: 'linear-gradient(135deg, transparent 0%, rgba(25, 118, 210, 0.03) 100%)',
-                      borderRadius: '8px',
-                      pointerEvents: 'none'
-                    },
-                    '&:hover': {
-                      borderColor: '#1f58b2',
-                      boxShadow: '0 2px 10px rgba(31, 88, 178, 0.12)',
-                      backgroundColor: '#ffffff'
-                    },
-                    '&.Mui-focused': {
-                      borderColor: '#1f58b2',
-                      boxShadow: '0 0 0 3px rgba(31, 88, 178, 0.14)',
-                      backgroundColor: '#ffffff'
-                    }
-                  },
-                  '& .MuiOutlinedInput-input': {
-                    fontFamily: '\"Fira Code\", \"Courier New\", monospace',
-                    fontSize: '13.5px',
-                    caretColor: '#1976d2',
-                    color: '#1a1a1a !important',
-                    lineHeight: '1.7',
-                    padding: '16px',
-                    transition: 'all 0.2s ease',
-                    '&::placeholder': {
-                      color: '#999 !important',
-                      opacity: 0.7
-                    }
-                  },
-                  '& textarea': {
-                    color: '#1a1a1a !important'
-                  }
-                }}
-                InputProps={{
-                  disableUnderline: true,
-                  autoComplete: 'off',
-                  spellCheck: 'false'
-                }}
-              />
-            </Box>
-
-            {/* Action Buttons */}
-            <Box sx={{
-              p: 2,
-              bgcolor: '#f8f9fa',
-              borderTop: '1px solid #e0e0e0',
-              display: 'flex',
-              gap: 1.5,
-              flexWrap: 'wrap',
-              animation: `${slideUp} 0.6s ease-out 0.2s both`
-            }}>
-              <Button
-                variant="outlined"
-                startIcon={<PlayIcon />}
-                onClick={handleRun}
-                disabled={loading}
-                sx={{
-                  px: 2.8,
-                  py: 1,
-                  borderColor: '#1f58b2',
-                  color: '#1f58b2',
-                  fontWeight: 600,
-                  fontSize: '13.5px',
-                  letterSpacing: '0.3px',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  borderRadius: '8px',
-                  border: '1px solid #1f58b2',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    width: 0,
-                    height: 0,
-                    borderRadius: '50%',
-                    backgroundColor: 'rgba(25, 118, 210, 0.1)',
-                    transform: 'translate(-50%, -50%)',
-                    transition: 'width 0.6s ease, height 0.6s ease'
-                  },
-                  '&:hover:not(:disabled)': {
-                    backgroundColor: 'rgba(31, 88, 178, 0.08)',
-                    borderColor: '#18478f',
-                    color: '#18478f',
-                    transform: 'translateY(-1px)',
-                    boxShadow: '0 4px 12px rgba(31, 88, 178, 0.2)',
-                    '&::before': {
-                      width: '300px',
-                      height: '300px'
-                    }
-                  },
-                  '&:active:not(:disabled)': {
-                    transform: 'translateY(0)'
-                  },
-                  '&:disabled': {
-                    opacity: 0.5,
-                    cursor: 'not-allowed'
-                  }
+                  background: '#13263d',
+                  px: 2,
+                  py: 1.4,
+                  color: '#c5e4ff',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
                 }}
               >
-                {loading ? '⏳ Running...' : '▶ Run Code'}
+                <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                  Code Editor
+                </Typography>
+                <Typography variant="caption" sx={{ opacity: 0.85 }}>
+                  {task.language.toUpperCase()} | {code.length} chars
+                </Typography>
+              </Box>
+
+              <Box sx={{ backgroundColor: '#0b1728', p: 0 }}>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={16}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  placeholder="Write your solution here..."
+                  variant="outlined"
+                  autoComplete="off"
+                  spellCheck="false"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 0,
+                      backgroundColor: '#0b1728',
+                      color: '#d7e9ff'
+                    },
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      border: 'none'
+                    },
+                    '& textarea': {
+                      fontFamily: '"JetBrains Mono", "Consolas", monospace',
+                      fontSize: 14,
+                      lineHeight: 1.7,
+                      color: '#d7e9ff',
+                      padding: 16
+                    },
+                    '& textarea::placeholder': {
+                      color: '#6f88a8',
+                      opacity: 1
+                    }
+                  }}
+                />
+              </Box>
+            </Box>
+
+            <Box sx={{ mt: 2, display: 'flex', gap: 1.2, flexWrap: 'wrap' }}>
+              <Button variant="outlined" startIcon={<PlayIcon />} onClick={handleRun} disabled={loading} sx={{ fontWeight: 700 }}>
+                {loading ? 'Running...' : 'Run Code'}
               </Button>
-              <Button
-                variant="contained"
-                startIcon={<SendIcon />}
-                onClick={handleSubmit}
-                disabled={evaluating}
-                sx={{
-                  px: 3,
-                  py: 1,
-                  background: 'linear-gradient(135deg, #1f58b2 0%, #17468e 100%)',
-                  fontWeight: 700,
-                  fontSize: '13.5px',
-                  letterSpacing: '0.3px',
-                  textTransform: 'uppercase',
-                  borderRadius: '8px',
-                  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                  boxShadow: '0 4px 15px rgba(25, 118, 210, 0.3)',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: '-100%',
-                    width: '100%',
-                    height: '100%',
-                    background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
-                    transition: 'left 0.5s ease'
-                  },
-                  '&:hover:not(:disabled)': {
-                    boxShadow: '0 8px 25px rgba(31, 88, 178, 0.4)',
-                    transform: 'translateY(-2px)',
-                    '&::before': {
-                      left: '100%'
-                    }
-                  },
-                  '&:active:not(:disabled)': {
-                    transform: 'translateY(-1px)'
-                  },
-                  '&:disabled': {
-                    opacity: 0.7,
-                    cursor: 'not-allowed'
-                  }
-                }}
-              >
-                {evaluating ? '⏳ Evaluating...' : '✓ Submit Solution'}
+              <Button variant="contained" startIcon={<SendIcon />} onClick={handleSubmit} disabled={evaluating} sx={{ fontWeight: 700, bgcolor: '#1f58b2', '&:hover': { bgcolor: '#18468d' } }}>
+                {evaluating ? 'Evaluating...' : 'Submit Solution'}
               </Button>
             </Box>
           </Paper>
 
           {output && (
-            <Paper sx={{ 
-              p: 0,
-              mt: 2,
-              bgcolor: '#1e1e1e',
-              color: '#fff',
-              borderRadius: 2,
-              overflow: 'hidden',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-              animation: `${slideUp} 0.6s ease-out`,
-              transition: 'all 0.4s ease',
-              '&:hover': {
-                boxShadow: '0 12px 40px rgba(25, 118, 210, 0.15)',
-                transform: 'translateY(-4px)'
-              }
-            }}>
-              <Box sx={{ 
-                p: 2,
-                bgcolor: '#252526',
-                borderBottom: '1px solid #3e3e42',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1
-              }}>
-                <span style={{ animation: `${float} 2.5s ease-in-out infinite`, fontSize: '18px' }}>📤</span>
-                <Box>
-                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 0 }}>
-                    Output
-                  </Typography>
-                  <Typography variant="caption" sx={{ opacity: 0.8, display: 'block', mt: 0.3 }}>
-                    Program execution result
-                  </Typography>
-                </Box>
+            <Paper sx={{ mt: 2, borderRadius: 2, overflow: 'hidden', border: '1px solid #243a54' }}>
+              <Box sx={{ px: 2, py: 1.2, bgcolor: '#16263a', color: '#d2e7ff' }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>Output</Typography>
               </Box>
-              <Box sx={{ p: 2, bgcolor: '#1e1e1e', maxHeight: '300px', overflow: 'auto' }}>
+              <Box sx={{ p: 2, bgcolor: '#0e1b2b', maxHeight: 300, overflow: 'auto' }}>
                 <SyntaxHighlighter language={task.language} style={vscDarkPlus}>
                   {output}
                 </SyntaxHighlighter>
@@ -574,169 +220,54 @@ function TaskDetail() {
           )}
         </Grid>
 
-        <Grid item xs={12} md={6} sx={{ animation: `${slideRight} 0.7s ease-out 0.3s both` }}>
-          {error && (
-            <Alert 
-              severity="error" 
-              sx={{ 
-                mb: 2,
-                animation: `${slideDown} 0.4s ease-out`,
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  boxShadow: '0 6px 16px rgba(211, 47, 47, 0.15)'
-                }
-              }}
-            >
-              {error}
-            </Alert>
-          )}
+        <Grid item xs={12} md={6}>
+          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
           {result && (
-            <Paper sx={{ 
-              p: 3, 
-              mb: 2,
-              borderRadius: 3,
-              border: '1px solid #d8e4f5',
-              animation: `${slideUp} 0.6s ease-out`,
-              boxShadow: '0 8px 22px rgba(21, 62, 120, 0.10)'
-            }}>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: '#1565c0', mb: 2 }}>
-                ✓ Evaluation Results
+            <Paper sx={{ p: 3, borderRadius: 3, border: '1px solid #c6dbf6', background: '#fff' }}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 800, color: '#1f58b2' }}>
+                Evaluation Results
               </Typography>
-              {result.allPassed ? (
-                <>
-                  <Alert 
-                    severity="success" 
-                    sx={{ 
-                      mb: 2,
-                      animation: `${pulse} 2s ease-in-out infinite`,
-                      '& .MuiAlert-icon': {
-                        animation: `${successCheckmark} 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)`
-                      }
-                    }}
-                  >
-                    🎉 {result.message}
-                  </Alert>
-                  {result.unlockedGames && result.unlockedGames.length > 0 && (
-                    <Alert 
-                      severity="info" 
-                      sx={{ 
-                        mb: 2,
-                        animation: `${slideUp} 0.5s ease-out 0.2s both`,
-                        '&:hover': {
-                          transform: 'scale(1.02)',
-                          boxShadow: '0 4px 16px rgba(25, 118, 210, 0.15)'
-                        },
-                        transition: 'all 0.3s ease'
-                      }}
-                    >
-                      🎮 You have unlocked {result.unlockedGames.length} game(s)! Check the Games section to play.
-                    </Alert>
-                  )}
-                </>
-              ) : (
-                <Alert 
-                  severity="warning" 
-                  sx={{ 
-                    mb: 2,
-                    animation: `${slideDown} 0.4s ease-out`
-                  }}
-                >
-                  {result.message}
-                </Alert>
-              )}
-              <Typography variant="body2" gutterBottom sx={{ fontWeight: 600, mb: 2, animation: `${slideUp} 0.5s ease-out 0.1s both` }}>
-                <span style={{ fontSize: '16px' }}>⭐</span> Score: <span style={{ color: '#1976d2', fontWeight: 700 }}>{result.score}/100</span> | <span style={{ fontSize: '16px' }}>✨</span> XP: <span style={{ color: '#ffa726', fontWeight: 700 }}>{result.xp}</span>
+              <Alert severity={result.allPassed ? 'success' : 'warning'} sx={{ mb: 2 }}>
+                {result.message}
+              </Alert>
+              <Typography variant="body2" sx={{ fontWeight: 700, mb: 2 }}>
+                Score: {result.score}/100 | XP: {result.xp}
               </Typography>
-              <Divider sx={{ my: 2 }} />
-              <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 700, color: '#333', mb: 2 }}>
-                Test Case Results:
-              </Typography>
+              <Divider sx={{ mb: 2 }} />
               {result.results?.map((testResult, index) => (
-                <Box 
-                  key={index} 
-                  sx={{ 
-                    mb: 2,
-                    animation: `${slideUp} 0.5s ease-out ${0.1 + index * 0.1}s both`,
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      transform: 'translateX(4px)'
-                    }
-                  }}
-                >
+                <Box key={index} sx={{ mb: 2 }}>
                   <Chip
-                    label={testResult.passed ? '✓ Passed' : '✗ Failed'}
+                    label={testResult.passed ? 'Passed' : 'Failed'}
                     color={testResult.passed ? 'success' : 'error'}
                     size="small"
-                    sx={{ 
-                      mr: 1, 
-                      fontWeight: 'bold',
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        transform: 'scale(1.08)'
-                      }
-                    }}
+                    sx={{ mr: 1, fontWeight: 700 }}
                   />
-                  <Typography variant="body2" component="span" sx={{ fontWeight: 'bold', color: '#333' }}>
+                  <Typography variant="body2" component="span" sx={{ fontWeight: 700 }}>
                     Test Case {index + 1}
                   </Typography>
                   {!testResult.passed && (
-                    <Box sx={{ 
-                      mt: 2, 
-                      p: 2, 
-                      bgcolor: '#fff3cd', 
-                      border: '2px solid #ffc107', 
-                      borderRadius: 2,
-                      animation: `${slideDown} 0.4s ease-out`,
-                      transition: 'all 0.3s ease'
-                    }}>
-                      <Typography variant="body2" sx={{ color: '#000', fontWeight: 'bold', mb: 1 }}>
-                        Expected Output:
+                    <Box sx={{ mt: 1.2, p: 1.5, borderRadius: 1.5, bgcolor: '#fff5f5', border: '1px solid #f2b8b8' }}>
+                      <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, color: '#8a2a2a', mb: 0.5 }}>
+                        Expected
                       </Typography>
-                      <Box sx={{ p: 1.5, bgcolor: '#ffffff', border: '1px solid #ffc107', borderRadius: 1, mb: 1.5, fontFamily: 'monospace', color: '#000', whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: '13px', transition: 'all 0.3s ease', '&:hover': { boxShadow: '0 2px 8px rgba(255, 193, 7, 0.2)' } }}>
+                      <Typography sx={{ fontFamily: 'monospace', whiteSpace: 'pre-wrap', mb: 1.2 }}>
                         {testResult.expected_output}
-                      </Box>
-                      <Typography variant="body2" sx={{ color: '#000', fontWeight: 'bold', mb: 1 }}>
-                        Your Output:
                       </Typography>
-                      <Box sx={{ p: 1.5, bgcolor: '#ffebee', border: '2px solid #d32f2f', borderRadius: 1, fontFamily: 'monospace', color: '#000', whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: '13px', transition: 'all 0.3s ease', '&:hover': { boxShadow: '0 2px 8px rgba(211, 47, 47, 0.2)' } }}>
+                      <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, color: '#8a2a2a', mb: 0.5 }}>
+                        Your Output
+                      </Typography>
+                      <Typography sx={{ fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                         {testResult.actual_output || '(empty)'}
-                      </Box>
-                    </Box>
-                  )}
-                  {testResult.passed && (
-                    <Box sx={{ 
-                      mt: 1, 
-                      p: 1.5, 
-                      bgcolor: '#e8f5e9', 
-                      border: '1px solid #4caf50', 
-                      borderRadius: 1,
-                      animation: `${slideUp} 0.4s ease-out`,
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        boxShadow: '0 4px 12px rgba(76, 175, 80, 0.2)',
-                        transform: 'scale(1.01)'
-                      }
-                    }}>
-                      <Typography variant="body2" sx={{ color: '#2e7d32', fontWeight: 'bold' }}>
-                        ✓ Test case passed successfully!
                       </Typography>
                     </Box>
                   )}
                 </Box>
               ))}
               {result.allPassed && (
-                <Box sx={{ 
-                  mt: 2, 
-                  p: 1.5, 
-                  bgcolor: '#e8f5e9', 
-                  borderRadius: 1,
-                  animation: `${pulse} 1.5s ease-in-out infinite`
-                }}>
-                  <Typography variant="body2" color="success.dark" sx={{ fontWeight: 700 }}>
-                    ✓ Redirecting to tasks in 3 seconds...
-                  </Typography>
-                </Box>
+                <Alert severity="info" sx={{ mt: 2 }}>
+                  Redirecting to quests in 3 seconds...
+                </Alert>
               )}
             </Paper>
           )}

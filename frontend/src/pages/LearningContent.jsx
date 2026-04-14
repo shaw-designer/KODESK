@@ -33,6 +33,30 @@ function LearningContent() {
   const pathSegments = currentPath.split('/').filter(Boolean);
   const lastSegment = pathSegments[pathSegments.length - 1] || '';
   const language = languageRoutes.includes(lastSegment) ? lastSegment : null;
+  const languageTheme = {
+    cpp: {
+      accent: '#0d8de0',
+      soft: '#e9f6ff',
+      border: '#b9dcf6',
+      heading: 'C++ Systems Track',
+      subtitle: 'Performance-focused path for memory, STL, and systems thinking.'
+    },
+    java: {
+      accent: '#d97706',
+      soft: '#fff6e9',
+      border: '#f3d8ad',
+      heading: 'Java Architecture Track',
+      subtitle: 'Object-oriented progression for scalable and maintainable software.'
+    },
+    python: {
+      accent: '#3f8f3f',
+      soft: '#eefbea',
+      border: '#c6e8bc',
+      heading: 'Python Productivity Track',
+      subtitle: 'Fast development path for scripting, automation, and applied coding.'
+    }
+  };
+  const activeTheme = language ? languageTheme[language] : null;
 
   useEffect(() => {
     if (language) {
@@ -236,9 +260,9 @@ function LearningContent() {
         }}
       >
         {[
-          { label: 'C++', route: '/learning/cpp', description: 'Build strong fundamentals in memory, performance, and control flow.' },
-          { label: 'Java', route: '/learning/java', description: 'Master object-oriented patterns and scalable application structure.' },
-          { label: 'Python', route: '/learning/python', description: 'Learn fast scripting, automation, and productive coding workflows.' }
+          { label: 'C++', route: '/learning/cpp', description: 'Build strong fundamentals in memory, performance, and control flow.', color: '#0d8de0', bg: 'linear-gradient(155deg, #e7f5ff 0%, #d9eeff 100%)' },
+          { label: 'Java', route: '/learning/java', description: 'Master object-oriented patterns and scalable application structure.', color: '#d97706', bg: 'linear-gradient(155deg, #fff4e3 0%, #ffecd0 100%)' },
+          { label: 'Python', route: '/learning/python', description: 'Learn fast scripting, automation, and productive coding workflows.', color: '#3f8f3f', bg: 'linear-gradient(155deg, #edfbe8 0%, #dcf4d4 100%)' }
         ].map((item) => (
           <Paper
             key={item.label}
@@ -246,8 +270,8 @@ function LearningContent() {
             sx={{
               p: 2.6,
               borderRadius: 3,
-              border: '1px solid #d8e2f2',
-              background: 'linear-gradient(160deg, #eef4ff 0%, #e5eeff 100%)',
+              border: `1px solid ${item.color}55`,
+              background: item.bg,
               transition: 'all 0.2s ease',
               display: 'flex',
               flexDirection: 'column',
@@ -258,20 +282,32 @@ function LearningContent() {
               }
             }}
           >
-            <Typography variant="h6" sx={{ fontWeight: 800, color: '#163761', mb: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, color: item.color, mb: 1 }}>
               {item.label}
             </Typography>
-            <Typography variant="body2" sx={{ color: '#42597a', mb: 2.2, flex: 1 }}>
+            <Typography variant="body2" sx={{ color: '#35506f', mb: 2.2, flex: 1 }}>
               {item.description}
             </Typography>
+            <Chip
+              size="small"
+              label="10 Learning Topics"
+              sx={{
+                alignSelf: 'flex-start',
+                mb: 1.5,
+                border: `1px solid ${item.color}66`,
+                color: item.color,
+                backgroundColor: '#ffffffaa',
+                fontWeight: 700
+              }}
+            />
             <Button
               variant="contained"
               onClick={() => navigate(item.route)}
               sx={{
                 alignSelf: 'flex-start',
-                bgcolor: '#1e5ab6',
+                bgcolor: item.color,
                 fontWeight: 700,
-                '&:hover': { bgcolor: '#17478f' }
+                '&:hover': { filter: 'brightness(0.9)' }
               }}
             >
               Learn {item.label}
@@ -284,12 +320,20 @@ function LearningContent() {
 
   const languageView = (
     <div>
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: 800, color: '#15345f' }}>
-          Learning {language?.toUpperCase()}
+      <Box
+        sx={{
+          mb: 3,
+          p: 2.5,
+          borderRadius: 3,
+          border: `1px solid ${activeTheme?.border}`,
+          background: activeTheme?.soft
+        }}
+      >
+        <Typography variant="h4" gutterBottom sx={{ fontWeight: 800, color: activeTheme?.accent }}>
+          {activeTheme?.heading}
         </Typography>
-        <Typography variant="body1" sx={{ color: '#577098' }}>
-          Follow topics in order and practice each concept before moving to quests.
+        <Typography variant="body1" sx={{ color: '#3f5f84' }}>
+          {activeTheme?.subtitle}
         </Typography>
       </Box>
 
@@ -303,10 +347,10 @@ function LearningContent() {
             top: 20,
             boxShadow: '0 10px 26px rgba(19, 49, 92, 0.14)',
             borderRadius: 3,
-            border: '1px solid #d7e3f3'
+            border: `1px solid ${activeTheme?.border}`
           }}
         >
-          <Box sx={{ bgcolor: '#1f58b2', color: 'white', p: 2.2, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}>
+          <Box sx={{ bgcolor: activeTheme?.accent, color: 'white', p: 2.2, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}>
             <Typography variant="h6" sx={{ fontWeight: 700 }}>
               📖 Topics
             </Typography>
@@ -320,8 +364,8 @@ function LearningContent() {
                     onClick={() => setSelectedTopic(item)}
                     sx={{
                       '&.Mui-selected': {
-                        backgroundColor: '#e8f0ff',
-                        borderLeft: '4px solid #1f58b2'
+                        backgroundColor: activeTheme?.soft,
+                        borderLeft: `4px solid ${activeTheme?.accent}`
                       },
                       '&:hover': {
                         backgroundColor: '#f5f8ff'
@@ -349,21 +393,21 @@ function LearningContent() {
             p: 4,
             bgcolor: '#ffffff',
             boxShadow: '0 12px 30px rgba(19, 49, 92, 0.12)',
-            border: '1px solid #dce6f4',
+            border: `1px solid ${activeTheme?.border}`,
             borderRadius: 3
           }}
         >
           {selectedTopic ? (
             <div>
-              <Typography variant="h4" gutterBottom sx={{ fontWeight: 800, color: '#1f58b2', mb: 3, pb: 2, borderBottom: '3px solid #1f58b2' }}>
+              <Typography variant="h4" gutterBottom sx={{ fontWeight: 800, color: activeTheme?.accent, mb: 3, pb: 2, borderBottom: `3px solid ${activeTheme?.accent}` }}>
                 {selectedTopic.title}
               </Typography>
               <Typography variant="body1" paragraph sx={{ lineHeight: 2, color: '#1f2a3a', fontSize: '16px', mb: 3 }}>
                 {selectedTopic.content}
               </Typography>
               {selectedTopic.code_examples && (
-                <Box sx={{ mt: 4, p: 3, bgcolor: '#f2f7ff', borderRadius: 2.5, border: '2px solid #1f58b2', boxShadow: '0 8px 22px rgba(31, 88, 178, 0.12)' }}>
-                  <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: '#164a98', mb: 2 }}>
+                <Box sx={{ mt: 4, p: 3, bgcolor: activeTheme?.soft, borderRadius: 2.5, border: `2px solid ${activeTheme?.accent}`, boxShadow: '0 8px 22px rgba(31, 88, 178, 0.12)' }}>
+                  <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: activeTheme?.accent, mb: 2 }}>
                     💻 Code Example
                   </Typography>
                   <Box sx={{ p: 2, bgcolor: '#1e1e1e', borderRadius: 1, overflow: 'auto' }}>
