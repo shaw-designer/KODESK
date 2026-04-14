@@ -348,14 +348,17 @@ function LearningContent() {
         <Paper
           sx={{
             width: 300,
-            height: 'fit-content',
+            maxHeight: 'calc(100vh - 130px)',
             position: 'sticky',
             top: 92,
             zIndex: 1,
             backgroundColor: '#ffffff',
             boxShadow: '0 14px 32px rgba(7, 22, 48, 0.28)',
             borderRadius: 3,
-            border: `2px solid ${activeTheme?.border}`
+            border: `2px solid ${activeTheme?.border}`,
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column'
           }}
         >
           <Box sx={{ bgcolor: activeTheme?.accent, color: 'white', p: 2.2, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}>
@@ -363,7 +366,25 @@ function LearningContent() {
               📖 Topics 1-10
             </Typography>
           </Box>
-          <List sx={{ maxHeight: '70vh', overflow: 'auto' }}>
+          <List
+            sx={{
+              p: 0,
+              m: 0,
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              backgroundColor: '#ffffff',
+              '&::-webkit-scrollbar': {
+                width: '10px'
+              },
+              '&::-webkit-scrollbar-track': {
+                backgroundColor: '#d9e8ff'
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: activeTheme?.accent,
+                borderRadius: '10px'
+              }
+            }}
+          >
             {content.map((item, index) => (
               <React.Fragment key={item.id}>
                 <ListItem disablePadding>
