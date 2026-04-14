@@ -20,8 +20,8 @@ function PrivateRoute({ children }) {
     return <div>Loading...</div>;
   }
   
-  // If the user is not authenticated, send them to learning as a guest landing page
-  return user ? children : <Navigate to="/learning/python" />;
+  // If the user is not authenticated, send them to launchpad as a guest landing page
+  return user ? children : <Navigate to="/launchpad" />;
 }
 
 function App() {
@@ -50,9 +50,11 @@ function App() {
   return (
     <Routes>
       {/* Public learning routes (guests can access learning content) */}
-      <Route path="/" element={<Navigate to="/learning/python" replace />} />
-      <Route path="learning" element={<Navigate to={`/learning/${defaultLanguage}`} replace />} />
-      <Route path="learning/:language" element={<LearningContent />} />
+      <Route path="/" element={<Navigate to="/launchpad" replace />} />
+      <Route path="launchpad" element={<LearningContent />} />
+      <Route path="cpp" element={<LearningContent />} />
+      <Route path="java" element={<LearningContent />} />
+      <Route path="python" element={<LearningContent />} />
 
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
@@ -78,8 +80,8 @@ function App() {
         <Route path="profile" element={<Profile />} />
       </Route>
 
-      {/* Catch-all route: redirect unknown paths to learning */}
-      <Route path="*" element={<Navigate to="/learning/python" replace />} />
+      {/* Catch-all route: redirect unknown paths to launchpad */}
+      <Route path="*" element={<Navigate to="/launchpad" replace />} />
     </Routes>
   );
 }
