@@ -106,20 +106,19 @@ async function getCompletedLevels(userId) {
 // Get games catalog with unlock state by completed quest levels (1..10)
 router.get('/catalog', authenticate, async (req, res) => {
   try {
-    const completedLevels = await getCompletedLevels(req.user.id);
     const games = GAME_CATALOG.map((game) => ({
       id: game.id,
       slug: game.slug,
       title: game.title,
       description: game.description,
       required_level: game.required_level,
-      unlocked: completedLevels.has(game.required_level),
+      unlocked: true,
       play_url: `/api/games/play/${game.slug}/`
     }));
 
     res.json({
       success: true,
-      completedLevels: Array.from(completedLevels),
+      completedLevels: [],
       games
     });
   } catch (error) {
@@ -131,8 +130,7 @@ router.get('/catalog', authenticate, async (req, res) => {
 // Backward-compatible alias for old frontend endpoint
 router.get('/unlocked', authenticate, async (req, res) => {
   try {
-    const completedLevels = await getCompletedLevels(req.user.id);
-    const games = GAME_CATALOG.filter((game) => completedLevels.has(game.required_level)).map((game) => ({
+    const games = GAME_CATALOG.map((game) => ({
       id: game.id,
       slug: game.slug,
       title: game.title,
