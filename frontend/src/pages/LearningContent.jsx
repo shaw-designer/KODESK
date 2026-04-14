@@ -11,7 +11,6 @@ import {
   ListItemText,
   Divider,
   LinearProgress,
-  Alert,
   Button,
   Stack,
   Chip
@@ -79,6 +78,56 @@ function LearningContent() {
         }}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          {!user && (
+            <Paper
+              elevation={0}
+              sx={{
+                p: 2.5,
+                borderRadius: 4,
+                border: '1px solid rgba(0, 217, 255, 0.28)',
+                background: 'linear-gradient(130deg, rgba(7,20,46,0.98) 0%, rgba(19,62,95,0.95) 100%)',
+                color: '#dff7ff',
+                boxShadow: '0 18px 36px rgba(0, 0, 0, 0.28)'
+              }}
+            >
+              <Typography variant="subtitle2" sx={{ color: '#90e8ff', letterSpacing: '0.11em', fontWeight: 700, mb: 1 }}>
+                START YOUR ACCOUNT
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 2.2, color: 'rgba(232, 247, 255, 0.92)' }}>
+                Join now to unlock quests, track your XP, and save every mission milestone.
+              </Typography>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+                <Button
+                  variant="contained"
+                  onClick={() => navigate('/login')}
+                  sx={{
+                    bgcolor: '#00d9ff',
+                    color: '#02263c',
+                    fontWeight: 700,
+                    '&:hover': { bgcolor: '#67e8ff' }
+                  }}
+                >
+                  Login
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => navigate('/register')}
+                  sx={{
+                    borderColor: '#00d9ff',
+                    color: '#b2f4ff',
+                    fontWeight: 700,
+                    '&:hover': {
+                      borderColor: '#67e8ff',
+                      backgroundColor: 'rgba(103, 232, 255, 0.08)'
+                    }
+                  }}
+                >
+                  Sign Up
+                </Button>
+              </Stack>
+            </Paper>
+          )}
+
           <Box>
             <Typography variant="h3" gutterBottom sx={{ fontWeight: 'bold', letterSpacing: '0.08em' }}>
               🚀 Welcome to the Coding Launchpad
@@ -95,8 +144,9 @@ function LearningContent() {
               p: 4,
               borderRadius: 4,
               border: '1px solid rgba(0, 217, 255, 0.18)',
-              background: 'rgba(6, 14, 37, 0.96)',
-              color: '#e8f7ff'
+              background: 'linear-gradient(150deg, rgba(6, 14, 37, 0.96) 0%, rgba(17, 35, 64, 0.94) 100%)',
+              color: '#e8f7ff',
+              boxShadow: '0 18px 42px rgba(4, 19, 49, 0.5)'
             }}
           >
             <Typography variant="subtitle2" sx={{ color: '#80d8ff', mb: 2, letterSpacing: '0.12em', fontWeight: 700 }}>
@@ -284,24 +334,6 @@ function LearningContent() {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       {isLaunchpad ? launchpadView : languageView}
-      {!user && isLaunchpad && (
-        <Alert severity="success" sx={{ mb: 3, maxWidth: '600px', mx: 'auto', bgcolor: '#e8f5e9', borderColor: '#4caf50', border: '2px solid' }}>
-          <Typography sx={{ mb: 1.5 }}>
-            🚀 <strong>Ready to start learning and complete quests?</strong>
-          </Typography>
-          <Typography sx={{ mb: 2 }}>
-            Create an account or login to unlock interactive quests, arcade earn XP points, and track your progress!
-          </Typography>
-          <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-            <Button variant="contained" size="medium" onClick={() => navigate('/register')} sx={{ backgroundColor: '#4caf50', '&:hover': { backgroundColor: '#45a049' } }}>
-              Get Started - Sign Up
-            </Button>
-            <Button variant="outlined" size="medium" onClick={() => navigate('/login')} sx={{ borderColor: '#4caf50', color: '#4caf50' }}>
-              Already a Member - Login
-            </Button>
-          </Stack>
-        </Alert>
-      )}
     </Container>
   );
 }
