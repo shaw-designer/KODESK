@@ -25,11 +25,15 @@ function LearningContent() {
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const isLaunchpad = location.pathname === '/launchpad';
-  const language = isLaunchpad ? null : location.pathname.slice(1); // remove leading /
+  const { user } = useAuth();
+  const currentPath = location.pathname;
+  const isLaunchpad = currentPath === '/launchpad';
+  const isLearningHome = currentPath === '/learning';
+  const languageRoutes = ['cpp', 'java', 'python'];
+  const language = languageRoutes.includes(currentPath.slice(1)) ? currentPath.slice(1) : null;
 
   useEffect(() => {
-    if (!isLaunchpad) {
+    if (language) {
       setLoading(true);
       const fetchContent = async () => {
         try {
@@ -58,9 +62,7 @@ function LearningContent() {
       setSelectedTopic(null);
       setLoading(false);
     }
-  }, [location.pathname, isLaunchpad, language]);
-
-  const { user } = useAuth();
+  }, [location.pathname, language]);
 
   if (loading) {
     return <LinearProgress />;
@@ -68,57 +70,6 @@ function LearningContent() {
 
   const launchpadView = (
     <div>
-      {!user && (
-        <Paper
-          elevation={0}
-          sx={{
-            p: { xs: 2.2, md: 3 },
-            mb: 3,
-            borderRadius: 4,
-            border: '1px solid rgba(0, 217, 255, 0.28)',
-            background: 'linear-gradient(130deg, rgba(7,20,46,0.98) 0%, rgba(19,62,95,0.95) 100%)',
-            color: '#dff7ff',
-            boxShadow: '0 18px 36px rgba(0, 0, 0, 0.28)'
-          }}
-        >
-          <Typography variant="subtitle2" sx={{ color: '#90e8ff', letterSpacing: '0.11em', fontWeight: 700, mb: 1 }}>
-            START YOUR ACCOUNT
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 2.2, color: 'rgba(232, 247, 255, 0.92)' }}>
-            Join now to unlock quests, track your XP, and save every mission milestone.
-          </Typography>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
-            <Button
-              variant="contained"
-              onClick={() => navigate('/login')}
-              sx={{
-                bgcolor: '#00d9ff',
-                color: '#02263c',
-                fontWeight: 700,
-                '&:hover': { bgcolor: '#67e8ff' }
-              }}
-            >
-              Login
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={() => navigate('/register')}
-              sx={{
-                borderColor: '#00d9ff',
-                color: '#b2f4ff',
-                fontWeight: 700,
-                '&:hover': {
-                  borderColor: '#67e8ff',
-                  backgroundColor: 'rgba(103, 232, 255, 0.08)'
-                }
-              }}
-            >
-              Sign Up
-            </Button>
-          </Stack>
-        </Paper>
-      )}
-
       <Box
         sx={{
           display: 'grid',
@@ -138,6 +89,55 @@ function LearningContent() {
               Start with C++ fundamentals, level up with Java, and master Python in the final phase.
             </Typography>
           </Box>
+          {!user && (
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 2.2, md: 2.6 },
+                borderRadius: 4,
+                border: '1px solid rgba(0, 217, 255, 0.28)',
+                background: 'linear-gradient(130deg, rgba(7,20,46,0.98) 0%, rgba(19,62,95,0.95) 100%)',
+                color: '#dff7ff',
+                boxShadow: '0 18px 36px rgba(0, 0, 0, 0.28)'
+              }}
+            >
+              <Typography variant="subtitle2" sx={{ color: '#90e8ff', letterSpacing: '0.11em', fontWeight: 700, mb: 1 }}>
+                START YOUR ACCOUNT
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 2.2, color: 'rgba(232, 247, 255, 0.92)' }}>
+                Join now to unlock quests, track your XP, and save every mission milestone.
+              </Typography>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+                <Button
+                  variant="contained"
+                  onClick={() => navigate('/login')}
+                  sx={{
+                    bgcolor: '#00d9ff',
+                    color: '#02263c',
+                    fontWeight: 700,
+                    '&:hover': { bgcolor: '#67e8ff' }
+                  }}
+                >
+                  Login
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => navigate('/register')}
+                  sx={{
+                    borderColor: '#00d9ff',
+                    color: '#b2f4ff',
+                    fontWeight: 700,
+                    '&:hover': {
+                      borderColor: '#67e8ff',
+                      backgroundColor: 'rgba(103, 232, 255, 0.08)'
+                    }
+                  }}
+                >
+                  Sign Up
+                </Button>
+              </Stack>
+            </Paper>
+          )}
 
           <Paper
             elevation={10}
@@ -161,7 +161,7 @@ function LearningContent() {
               ].map((item, index) => (
                 <ListItem key={item.label} disablePadding>
                   <ListItemButton
-                    onClick={() => navigate(`/${item.route}`)}
+                    onClick={() => navigate('/login')}
                     sx={{
                       px: 0,
                       py: 1.5,
@@ -186,6 +186,16 @@ function LearningContent() {
                       <Typography variant="body1" sx={{ fontWeight: 700, fontSize: '1rem' }}>
                         {item.label}
                       </Typography>
+                      <Chip
+                        size="small"
+                        label="Login Required"
+                        sx={{
+                          ml: 1.5,
+                          backgroundColor: 'rgba(0, 217, 255, 0.15)',
+                          color: '#a7eeff',
+                          border: '1px solid rgba(0, 217, 255, 0.32)'
+                        }}
+                      />
                     </Box>
                   </ListItemButton>
                 </ListItem>
@@ -203,7 +213,7 @@ function LearningContent() {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            p: 2
+            p: 2.5
           }}
         >
           <Box
@@ -212,16 +222,78 @@ function LearningContent() {
             alt="Space Astronaut"
             sx={{
               width: '100%',
-              maxWidth: 520,
               borderRadius: 4,
               boxShadow: '0 0 80px rgba(0, 217, 255, 0.35)',
               border: '2px solid rgba(0, 217, 255, 0.16)',
-              backgroundColor: 'rgba(0,0,0,0.02)'
+              backgroundColor: 'rgba(0,0,0,0.02)',
+              objectFit: 'cover'
             }}
           />
         </Box>
       </Box>
     </div>
+  );
+
+  const learningHomeView = (
+    <Box>
+      <Paper
+        elevation={0}
+        sx={{
+          p: { xs: 2.5, md: 4 },
+          mb: 3,
+          borderRadius: 3,
+          border: '1px solid #d7e3f4',
+          background: 'linear-gradient(140deg, #f8fbff 0%, #eef5ff 100%)'
+        }}
+      >
+        <Typography variant="h4" sx={{ fontWeight: 800, color: '#12305d', mb: 1 }}>
+          Learning Hub
+        </Typography>
+        <Typography variant="body1" sx={{ color: '#385176', maxWidth: 780 }}>
+          Choose a language track and continue your journey. This page is only for signed-in learners, separate from the guest launchpad.
+        </Typography>
+      </Paper>
+
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' },
+          gap: 2
+        }}
+      >
+        {[
+          { label: 'C++', route: '/cpp', description: 'Build strong fundamentals in memory, performance, and control flow.' },
+          { label: 'Java', route: '/java', description: 'Master object-oriented patterns and scalable application structure.' },
+          { label: 'Python', route: '/python', description: 'Learn fast scripting, automation, and productive coding workflows.' }
+        ].map((item) => (
+          <Paper
+            key={item.label}
+            elevation={0}
+            sx={{
+              p: 2.4,
+              borderRadius: 3,
+              border: '1px solid #dce6f5',
+              backgroundColor: '#fff',
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 8px 18px rgba(31, 62, 112, 0.12)'
+              }
+            }}
+          >
+            <Typography variant="h6" sx={{ fontWeight: 700, color: '#183a6b', mb: 1 }}>
+              {item.label}
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#4e6281', mb: 2.2 }}>
+              {item.description}
+            </Typography>
+            <Button variant="contained" onClick={() => navigate(item.route)}>
+              Open {item.label}
+            </Button>
+          </Paper>
+        ))}
+      </Box>
+    </Box>
   );
 
   const languageView = (
@@ -334,7 +406,7 @@ function LearningContent() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      {isLaunchpad ? launchpadView : languageView}
+      {isLaunchpad ? launchpadView : isLearningHome ? learningHomeView : languageView}
     </Container>
   );
 }

@@ -26,7 +26,7 @@ function PrivateRoute({ children }) {
 
 function App() {
   const [defaultLanguage, setDefaultLanguage] = useState('python');
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     let mounted = true;
@@ -47,14 +47,15 @@ function App() {
     return () => { mounted = false; };
   }, [user]);
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <Routes>
-      {/* Public learning routes (guests can access learning content) */}
-      <Route path="/" element={<Navigate to="/launchpad" replace />} />
-      <Route path="launchpad" element={<LearningContent />} />
-      <Route path="cpp" element={<LearningContent />} />
-      <Route path="java" element={<LearningContent />} />
-      <Route path="python" element={<LearningContent />} />
+      {/* Public launchpad route for guests */}
+      <Route path="/" element={<Navigate to={user ? '/learning' : '/launchpad'} replace />} />
+      <Route path="launchpad" element={user ? <Navigate to="/learning" replace /> : <LearningContent />} />
 
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
@@ -68,6 +69,10 @@ function App() {
         }
       >
         <Route index element={<Dashboard />} />
+        <Route path="learning" element={<LearningContent />} />
+        <Route path="cpp" element={<LearningContent />} />
+        <Route path="java" element={<LearningContent />} />
+        <Route path="python" element={<LearningContent />} />
         <Route path="languages" element={<LanguageSelection />} />
 
         {/* Redirect incomplete routes to user's selected/default language */}
@@ -80,8 +85,8 @@ function App() {
         <Route path="profile" element={<Profile />} />
       </Route>
 
-      {/* Catch-all route: redirect unknown paths to launchpad */}
-      <Route path="*" element={<Navigate to="/launchpad" replace />} />
+      {/* Catch-all route */}
+      <Route path="*" element={<Navigate to={user ? '/learning' : '/launchpad'} replace />} />
     </Routes>
   );
 }

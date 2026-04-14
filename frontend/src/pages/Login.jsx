@@ -24,7 +24,7 @@ function Login() {
     if (!showSuccess) return undefined;
 
     const timer = window.setTimeout(() => {
-      navigate('/');
+      navigate('/learning');
     }, 1800);
 
     return () => window.clearTimeout(timer);
@@ -106,7 +106,7 @@ function Login() {
           </Typography>
 
           <Box textAlign="center" sx={{ mt: 2 }}>
-            <Button variant="outlined" onClick={() => navigate('/learning')}>
+            <Button variant="outlined" onClick={() => navigate('/launchpad')}>
               Explore as Guest
             </Button>
           </Box>

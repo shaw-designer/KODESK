@@ -40,7 +40,7 @@ function Register() {
     const result = await register(name, email, password);
     
     if (result.success) {
-      navigate('/');
+      navigate('/learning');
     } else {
       setError(result.message);
     }
@@ -126,7 +126,7 @@ function Register() {
           </Typography>
 
           <Box textAlign="center" sx={{ mt: 2 }}>
-            <Button variant="outlined" onClick={() => navigate('/learning')}>Explore as Guest</Button>
+            <Button variant="outlined" onClick={() => navigate('/launchpad')}>Explore as Guest</Button>
           </Box>
         </Paper>
       </Box>
