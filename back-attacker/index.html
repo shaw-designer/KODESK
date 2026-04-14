@@ -46,9 +46,9 @@
     <div class="hud">
       <span id="score">Score: 0</span>
       <span id="lives">Lives: 3</span>
-      <span id="state">Click to start</span>
+      <span id="state">Running</span>
     </div>
-    <canvas id="game" width="760" height="460"></canvas>
+    <canvas id="game" width="760" height="460" tabindex="0"></canvas>
     <div class="hint">Move with A/D or Left/Right. Shoot with Space or click/tap.</div>
   </div>
 
@@ -60,7 +60,7 @@
     const stateEl = document.getElementById("state");
 
     const state = {
-      running: false,
+      running: true,
       score: 0,
       lives: 3,
       playerX: canvas.width / 2,
@@ -120,7 +120,7 @@
       state.lastShotAt = 0;
       scoreEl.textContent = "Score: 0";
       livesEl.textContent = "Lives: 3";
-      stateEl.textContent = "Running";
+      stateEl.textContent = "Running - A/D or Arrows, Space/Click to shoot";
     }
 
     function endGame() {
@@ -208,6 +208,7 @@
 
     document.addEventListener("keydown", (e) => {
       state.keys[e.key] = true;
+      if (!state.running) reset();
       if (e.key === " " || e.key === "Spacebar") {
         e.preventDefault();
         shoot(performance.now());
@@ -217,6 +218,7 @@
       state.keys[e.key] = false;
     });
     canvas.addEventListener("mousedown", () => {
+      canvas.focus();
       if (!state.running) reset();
       shoot(performance.now());
     });
@@ -226,6 +228,7 @@
       shoot(performance.now());
     }, { passive: false });
 
+    reset();
     requestAnimationFrame(frame);
   </script>
 </body>
