@@ -46,7 +46,7 @@ function Games() {
             Quest Unlock Games
           </Typography>
           <Typography sx={{ color: '#4f678b', mb: 2 }}>
-            Complete Quest 1 to unlock Game 1, Quest 2 for Game 2, and continue up to Quest 10.
+            Complete Quest 1 to unlock Game 1, Quest 2 for Game 2, and continue through all 9 games.
           </Typography>
           <Chip label={`Unlocked ${unlockedCount}/${games.length}`} sx={{ bgcolor: '#e8f0ff', color: '#1f58b2', fontWeight: 700 }} />
         </CardContent>
