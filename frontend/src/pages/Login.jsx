@@ -115,9 +115,13 @@ function Login() {
             <Box
               sx={{
                 position: 'fixed',
-                inset: 0,
+                top: 0,
+                left: 0,
+                width: '100dvw',
+                height: '100dvh',
                 zIndex: 9999,
-                overflow: 'hidden'
+                overflow: 'hidden',
+                backgroundColor: '#000'
               }}
             >
               <Box
@@ -125,9 +129,10 @@ function Login() {
                 src="/assets/login.gif"
                 alt="Login Success"
                 sx={{
-                  width: '100vw',
-                  height: '100vh',
-                  objectFit: 'cover',
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'fill',
+                  objectPosition: 'center',
                   display: 'block'
                 }}
               />
