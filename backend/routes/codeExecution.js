@@ -53,10 +53,10 @@ const cleanString = (str) => {
 const normalizeForComparison = (str = '') => {
   const cleaned = cleanString(str);
   if (!cleaned) return '';
+  // Treat all whitespace (spaces/tabs/newlines) uniformly for judging.
+  // This prevents false negatives when learners print valid output with different formatting.
   return cleaned
-    .split('\n')
-    .map(line => line.trim())
-    .join('\n')
+    .replace(/\s+/g, ' ')
     .trim();
 };
 
