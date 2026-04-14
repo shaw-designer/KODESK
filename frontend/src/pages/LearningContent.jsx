@@ -68,6 +68,57 @@ function LearningContent() {
 
   const launchpadView = (
     <div>
+      {!user && (
+        <Paper
+          elevation={0}
+          sx={{
+            p: { xs: 2.2, md: 3 },
+            mb: 3,
+            borderRadius: 4,
+            border: '1px solid rgba(0, 217, 255, 0.28)',
+            background: 'linear-gradient(130deg, rgba(7,20,46,0.98) 0%, rgba(19,62,95,0.95) 100%)',
+            color: '#dff7ff',
+            boxShadow: '0 18px 36px rgba(0, 0, 0, 0.28)'
+          }}
+        >
+          <Typography variant="subtitle2" sx={{ color: '#90e8ff', letterSpacing: '0.11em', fontWeight: 700, mb: 1 }}>
+            START YOUR ACCOUNT
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 2.2, color: 'rgba(232, 247, 255, 0.92)' }}>
+            Join now to unlock quests, track your XP, and save every mission milestone.
+          </Typography>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+            <Button
+              variant="contained"
+              onClick={() => navigate('/login')}
+              sx={{
+                bgcolor: '#00d9ff',
+                color: '#02263c',
+                fontWeight: 700,
+                '&:hover': { bgcolor: '#67e8ff' }
+              }}
+            >
+              Login
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => navigate('/register')}
+              sx={{
+                borderColor: '#00d9ff',
+                color: '#b2f4ff',
+                fontWeight: 700,
+                '&:hover': {
+                  borderColor: '#67e8ff',
+                  backgroundColor: 'rgba(103, 232, 255, 0.08)'
+                }
+              }}
+            >
+              Sign Up
+            </Button>
+          </Stack>
+        </Paper>
+      )}
+
       <Box
         sx={{
           display: 'grid',
@@ -78,56 +129,6 @@ function LearningContent() {
         }}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-          {!user && (
-            <Paper
-              elevation={0}
-              sx={{
-                p: 2.5,
-                borderRadius: 4,
-                border: '1px solid rgba(0, 217, 255, 0.28)',
-                background: 'linear-gradient(130deg, rgba(7,20,46,0.98) 0%, rgba(19,62,95,0.95) 100%)',
-                color: '#dff7ff',
-                boxShadow: '0 18px 36px rgba(0, 0, 0, 0.28)'
-              }}
-            >
-              <Typography variant="subtitle2" sx={{ color: '#90e8ff', letterSpacing: '0.11em', fontWeight: 700, mb: 1 }}>
-                START YOUR ACCOUNT
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 2.2, color: 'rgba(232, 247, 255, 0.92)' }}>
-                Join now to unlock quests, track your XP, and save every mission milestone.
-              </Typography>
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
-                <Button
-                  variant="contained"
-                  onClick={() => navigate('/login')}
-                  sx={{
-                    bgcolor: '#00d9ff',
-                    color: '#02263c',
-                    fontWeight: 700,
-                    '&:hover': { bgcolor: '#67e8ff' }
-                  }}
-                >
-                  Login
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={() => navigate('/register')}
-                  sx={{
-                    borderColor: '#00d9ff',
-                    color: '#b2f4ff',
-                    fontWeight: 700,
-                    '&:hover': {
-                      borderColor: '#67e8ff',
-                      backgroundColor: 'rgba(103, 232, 255, 0.08)'
-                    }
-                  }}
-                >
-                  Sign Up
-                </Button>
-              </Stack>
-            </Paper>
-          )}
-
           <Box>
             <Typography variant="h3" gutterBottom sx={{ fontWeight: 'bold', letterSpacing: '0.08em' }}>
               🚀 Welcome to the Coding Launchpad
