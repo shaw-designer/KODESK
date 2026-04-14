@@ -9,6 +9,7 @@ import {
   Box,
   Alert
 } from '@mui/material';
+import { createPortal } from 'react-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 function Login() {
@@ -46,16 +47,17 @@ function Login() {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box
-        sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-      >
-        <Paper elevation={3} sx={{ p: 4, width: '100%', position: 'relative', overflow: 'hidden' }}>
+    <>
+      <Container maxWidth="sm">
+        <Box
+          sx={{
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <Paper elevation={3} sx={{ p: 4, width: '100%', position: 'relative', overflow: 'hidden' }}>
           <Typography variant="h4" component="h1" gutterBottom align="center">
             KODESK
           </Typography>
@@ -111,36 +113,38 @@ function Login() {
             </Button>
           </Box>
 
-          {showSuccess && (
-            <Box
-              sx={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100dvw',
-                height: '100dvh',
-                zIndex: 9999,
-                overflow: 'hidden',
-                backgroundColor: '#000'
-              }}
-            >
-              <Box
-                component="img"
-                src="/assets/login.gif"
-                alt="Login Success"
-                sx={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'fill',
-                  objectPosition: 'center',
-                  display: 'block'
-                }}
-              />
-            </Box>
-          )}
-        </Paper>
-      </Box>
-    </Container>
+          </Paper>
+        </Box>
+      </Container>
+
+      {showSuccess && createPortal(
+        <Box
+          sx={{
+            position: 'fixed',
+            inset: 0,
+            width: '100vw',
+            height: '100vh',
+            zIndex: 99999,
+            overflow: 'hidden',
+            backgroundColor: '#000'
+          }}
+        >
+          <Box
+            component="img"
+            src="/assets/login.gif"
+            alt="Login Success"
+            sx={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              objectPosition: 'center',
+              display: 'block'
+            }}
+          />
+        </Box>,
+        document.body
+      )}
+    </>
   );
 }
 
