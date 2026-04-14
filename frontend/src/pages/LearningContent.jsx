@@ -94,6 +94,8 @@ function LearningContent() {
     return <LinearProgress />;
   }
 
+  const selectedTopicIndex = content.findIndex((item) => item.id === selectedTopic?.id);
+
   const launchpadView = (
     <div>
       <Box
@@ -335,6 +337,9 @@ function LearningContent() {
         <Typography variant="body1" sx={{ color: '#3f5f84' }}>
           {activeTheme?.subtitle}
         </Typography>
+        <Typography variant="body2" sx={{ color: '#5b7394', mt: 1 }}>
+          Topics 1 to 10: {language?.toUpperCase()}: Getting Started to {language?.toUpperCase()}: Exception Handling
+        </Typography>
       </Box>
 
       <Box sx={{ display: 'flex', gap: 3, mt: 3.2 }}>
@@ -352,7 +357,7 @@ function LearningContent() {
         >
           <Box sx={{ bgcolor: activeTheme?.accent, color: 'white', p: 2.2, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}>
             <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              📖 Topics
+              📖 Topics 1-10
             </Typography>
           </Box>
           <List sx={{ maxHeight: '70vh', overflow: 'auto' }}>
@@ -372,8 +377,19 @@ function LearningContent() {
                       }
                     }}
                   >
+                    <Chip
+                      size="small"
+                      label={index + 1}
+                      sx={{
+                        mr: 1.2,
+                        minWidth: 28,
+                        bgcolor: activeTheme?.soft,
+                        border: `1px solid ${activeTheme?.border}`,
+                        fontWeight: 700
+                      }}
+                    />
                     <ListItemText
-                      primary={`${index + 1}. ${item.title}`}
+                      primary={item.title}
                       secondary={item.topic}
                       primaryTypographyProps={{ sx: { fontWeight: selectedTopic?.id === item.id ? 'bold' : 'normal', fontSize: '14px' } }}
                       secondaryTypographyProps={{ sx: { fontSize: '12px' } }}
@@ -399,6 +415,17 @@ function LearningContent() {
         >
           {selectedTopic ? (
             <div>
+              <Chip
+                size="small"
+                label={`Topic ${selectedTopicIndex + 1} of ${content.length}`}
+                sx={{
+                  mb: 1.2,
+                  bgcolor: activeTheme?.soft,
+                  border: `1px solid ${activeTheme?.border}`,
+                  color: activeTheme?.accent,
+                  fontWeight: 700
+                }}
+              />
               <Typography variant="h4" gutterBottom sx={{ fontWeight: 800, color: activeTheme?.accent, mb: 3, pb: 2, borderBottom: `3px solid ${activeTheme?.accent}` }}>
                 {selectedTopic.title}
               </Typography>

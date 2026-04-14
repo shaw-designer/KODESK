@@ -197,11 +197,11 @@ function TaskDetail() {
               </Box>
             </Box>
 
-            <Box sx={{ mt: 2, display: 'flex', gap: 1.2, flexWrap: 'wrap' }}>
-              <Button variant="outlined" startIcon={<PlayIcon />} onClick={handleRun} disabled={loading} sx={{ fontWeight: 700 }}>
+            <Box sx={{ mt: 2, display: 'flex', gap: 1.2, flexWrap: 'nowrap' }}>
+              <Button variant="outlined" startIcon={<PlayIcon />} onClick={handleRun} disabled={loading} sx={{ fontWeight: 700, minWidth: 170 }}>
                 {loading ? 'Running...' : 'Run Code'}
               </Button>
-              <Button variant="contained" startIcon={<SendIcon />} onClick={handleSubmit} disabled={evaluating} sx={{ fontWeight: 700, bgcolor: '#1f58b2', '&:hover': { bgcolor: '#18468d' } }}>
+              <Button variant="contained" startIcon={<SendIcon />} onClick={handleSubmit} disabled={evaluating} sx={{ fontWeight: 700, minWidth: 190, bgcolor: '#1f58b2', '&:hover': { bgcolor: '#18468d' } }}>
                 {evaluating ? 'Evaluating...' : 'Submit Solution'}
               </Button>
             </Box>
