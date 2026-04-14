@@ -90,6 +90,17 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/learning', learningRoutes);
 app.use('/api/execute', executeLimiter, codeExecutionRoutes);
 app.use('/api/progress', progressRoutes);
+
+// Legacy game bundles use inline scripts/styles and in-browser audio APIs.
+// Override CSP only for game playback endpoints so old games can run.
+app.use('/api/games/play', (req, res, next) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src * data: blob: 'unsafe-inline' 'unsafe-eval'; img-src * data: blob:; media-src * data: blob:; connect-src * data: blob:; font-src * data: blob:;"
+  );
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+});
 app.use('/api/games', gameRoutes);
 
 // Error handling middleware
