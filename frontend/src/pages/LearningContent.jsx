@@ -95,6 +95,7 @@ function LearningContent() {
   }
 
   const selectedTopicIndex = content.findIndex((item) => item.id === selectedTopic?.id);
+  const formattedCodeExample = selectedTopic?.code_examples?.replace(/\\n/g, '\n');
 
   const launchpadView = (
     <div>
@@ -350,9 +351,10 @@ function LearningContent() {
             height: 'fit-content',
             position: 'sticky',
             top: 20,
-            boxShadow: '0 10px 26px rgba(19, 49, 92, 0.14)',
+            backgroundColor: '#ffffff',
+            boxShadow: '0 14px 32px rgba(7, 22, 48, 0.28)',
             borderRadius: 3,
-            border: `1px solid ${activeTheme?.border}`
+            border: `2px solid ${activeTheme?.border}`
           }}
         >
           <Box sx={{ bgcolor: activeTheme?.accent, color: 'white', p: 2.2, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}>
@@ -369,11 +371,11 @@ function LearningContent() {
                     onClick={() => setSelectedTopic(item)}
                     sx={{
                       '&.Mui-selected': {
-                        backgroundColor: activeTheme?.soft,
-                        borderLeft: `4px solid ${activeTheme?.accent}`
+                        backgroundColor: '#f7fbff',
+                        borderLeft: `5px solid ${activeTheme?.accent}`
                       },
                       '&:hover': {
-                        backgroundColor: '#f5f8ff'
+                        backgroundColor: '#f2f7ff'
                       }
                     }}
                   >
@@ -391,8 +393,8 @@ function LearningContent() {
                     <ListItemText
                       primary={item.title}
                       secondary={item.topic}
-                      primaryTypographyProps={{ sx: { fontWeight: selectedTopic?.id === item.id ? 'bold' : 'normal', fontSize: '14px' } }}
-                      secondaryTypographyProps={{ sx: { fontSize: '12px' } }}
+                      primaryTypographyProps={{ sx: { color: '#16273f', fontWeight: selectedTopic?.id === item.id ? 800 : 600, fontSize: '15px' } }}
+                      secondaryTypographyProps={{ sx: { color: '#4f6483', fontSize: '12px', fontWeight: 500 } }}
                     />
                   </ListItemButton>
                 </ListItem>
@@ -408,13 +410,13 @@ function LearningContent() {
             flex: 1,
             p: 4,
             bgcolor: '#ffffff',
-            boxShadow: '0 12px 30px rgba(19, 49, 92, 0.12)',
-            border: `1px solid ${activeTheme?.border}`,
+            boxShadow: '0 14px 34px rgba(7, 22, 48, 0.26)',
+            border: `2px solid ${activeTheme?.border}`,
             borderRadius: 3
           }}
         >
           {selectedTopic ? (
-            <div>
+            <Box>
               <Chip
                 size="small"
                 label={`Topic ${selectedTopicIndex + 1} of ${content.length}`}
@@ -429,29 +431,29 @@ function LearningContent() {
               <Typography variant="h4" gutterBottom sx={{ fontWeight: 800, color: activeTheme?.accent, mb: 3, pb: 2, borderBottom: `3px solid ${activeTheme?.accent}` }}>
                 {selectedTopic.title}
               </Typography>
-              <Typography variant="body1" paragraph sx={{ lineHeight: 2, color: '#1f2a3a', fontSize: '16px', mb: 3 }}>
+              <Typography variant="body1" paragraph sx={{ lineHeight: 2.05, color: '#142437', fontSize: '17px', mb: 3, fontWeight: 500 }}>
                 {selectedTopic.content}
               </Typography>
-              {selectedTopic.code_examples && (
-                <Box sx={{ mt: 4, p: 3, bgcolor: activeTheme?.soft, borderRadius: 2.5, border: `2px solid ${activeTheme?.accent}`, boxShadow: '0 8px 22px rgba(31, 88, 178, 0.12)' }}>
+              {formattedCodeExample && (
+                <Box sx={{ mt: 4, p: 3, bgcolor: activeTheme?.soft, borderRadius: 2.5, border: `2px solid ${activeTheme?.accent}`, boxShadow: '0 10px 24px rgba(7, 22, 48, 0.20)' }}>
                   <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: activeTheme?.accent, mb: 2 }}>
                     💻 Code Example
                   </Typography>
-                  <Box sx={{ p: 2, bgcolor: '#1e1e1e', borderRadius: 1, overflow: 'auto' }}>
-                    <pre style={{ margin: 0, color: '#d4d4d4', fontSize: '13px', lineHeight: '1.6', fontFamily: 'Courier New, monospace', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                      {selectedTopic.code_examples}
+                  <Box sx={{ p: 2.2, bgcolor: '#0b1728', borderRadius: 1.5, overflow: 'auto', border: '1px solid #1a2f4c' }}>
+                    <pre style={{ margin: 0, color: '#d8e7ff', fontSize: '14px', lineHeight: '1.7', fontFamily: 'Consolas, Monaco, monospace', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                      {formattedCodeExample}
                     </pre>
                   </Box>
                 </Box>
               )}
               {user && (
-                <Box sx={{ mt: 4, p: 2, bgcolor: '#e8f5e9', border: '1px solid #4caf50', borderRadius: 2 }}>
-                  <Typography variant="body2" sx={{ color: '#2e7d32' }}>
+                <Box sx={{ mt: 4, p: 2, bgcolor: '#ecfff0', border: '2px solid #53b56b', borderRadius: 2 }}>
+                  <Typography variant="body2" sx={{ color: '#195c2d', fontWeight: 600 }}>
                     Some content may be missing. Please be patient. Head to <strong>Quests</strong> to practice your skills.
                   </Typography>
                 </Box>
               )}
-            </div>
+            </Box>
           ) : (
             <Box sx={{ textAlign: 'center', py: 8 }}>
               <Typography variant="h6" color="text.secondary" sx={{ fontStyle: 'italic', fontSize: '18px', color: '#999' }}>
