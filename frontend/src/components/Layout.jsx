@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   AppBar,
@@ -14,10 +14,8 @@ import {
   Box,
   IconButton,
   Avatar,
-  Badge,
   Tooltip,
   Divider,
-  Stack,
   Chip
 } from '@mui/material';
 import {
@@ -29,135 +27,17 @@ import {
   Person as PersonIcon,
   Language as LanguageIcon,
   Logout as LogoutIcon,
-  Close as CloseIcon,
   EmojiEvents as TrophyIcon,
   LocalFireDepartment as FireIcon,
-  Star as StarIcon
+  Star as StarIcon,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
-import { colors } from '../theme/modernTheme';
-import styled from 'styled-components';
+import api from '../services/api';
 
-const drawerWidth = 280;
-
-// Styled components for modern look
-const StyledAppBar = styled(AppBar)`
-  background: linear-gradient(135deg, ${colors.surface}E6 0%, ${colors.surfaceLight}E6 100%) !important;
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid ${colors.primary}40;
-  box-shadow: 0 0 30px ${colors.primary}40, inset 0 0 30px ${colors.primary}10 !important;
-  transition: all 0.3s;
-`;
-
-const GlowingLogo = styled(Typography)`
-  font-weight: 800;
-  font-size: 1.8rem;
-  background: linear-gradient(135deg, ${colors.primary}, ${colors.accent});
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: 0 0 20px ${colors.primary}60;
-  letter-spacing: 3px;
-  cursor: pointer;
-  transition: all 0.3s;
-
-  &:hover {
-    transform: scale(1.05);
-    text-shadow: 0 0 30px ${colors.primary}FF;
-  }
-`;
-
-const StatsContainer = styled(Box)`
-  display: flex;
-  gap: 20px;
-  margin-left: 40px;
-  
-  @media (max-width: 900px) {
-    display: none;
-  }
-`;
-
-const StatItem = styled(Box)`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  background: ${colors.primary}15;
-  border: 1px solid ${colors.primary}40;
-  border-radius: 8px;
-  backdrop-filter: blur(10px);
-  
-  & .MuiSvgIcon-root {
-    color: ${colors.primary};
-    font-size: 1.3rem;
-  }
-  
-  & .stat-value {
-    font-weight: 700;
-    color: ${colors.accent};
-    font-size: 0.9rem;
-  }
-`;
-
-const DrawerHeader = styled(Box)`
-  background: linear-gradient(135deg, ${colors.primary}20 0%, ${colors.secondary}20 100%);
-  padding: 20px;
-  border-bottom: 1px solid ${colors.primary}40;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: center;
-`;
-
-const StyledDrawer = styled(Drawer)`
-  & .MuiDrawer-paper {
-    background: linear-gradient(180deg, ${colors.surface} 0%, ${colors.surfaceLight} 100%);
-    border-right: 1px solid ${colors.primary}40;
-    backdrop-filter: blur(20px);
-  }
-`;
-
-const MenuItemStyled = styled(ListItemButton)`
-  margin: 4px 8px;
-  border-radius: 12px;
-  color: ${colors.text};
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 4px;
-    height: 100%;
-    background: linear-gradient(180deg, ${colors.primary}, ${colors.accent});
-    transform: scaleY(0);
-    transform-origin: top;
-    transition: transform 0.3s;
-  }
-
-  &:hover {
-    background: ${colors.primary}20;
-    box-shadow: inset 0 0 20px ${colors.primary}30;
-  }
-
-  &.Mui-selected {
-    background: linear-gradient(135deg, ${colors.primary}30, ${colors.secondary}20);
-    border-left: 4px solid ${colors.primary};
-    box-shadow: inset 0 0 20px ${colors.primary}40;
-
-    & .MuiListItemIcon-root {
-      color: ${colors.primary};
-    }
-
-    & .MuiListItemText-primary {
-      color: ${colors.primary};
-      font-weight: 700;
-    }
-  }
-`;
+const drawerWidthExpanded = 280;
+const drawerWidthCollapsed = 86;
 
 const menuItems = [
   { text: 'Hub', icon: <DashboardIcon />, path: '/' },
@@ -168,294 +48,232 @@ const menuItems = [
   { text: 'Profile', icon: <PersonIcon />, path: '/profile' }
 ];
 
-
 function Layout() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [desktopCollapsed, setDesktopCollapsed] = useState(false);
+  const [stats, setStats] = useState({ xp: 0, pts: 0, day: 0 });
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
 
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
+  useEffect(() => {
+    const fetchShellStats = async () => {
+      try {
+        const langResponse = await api.get('/languages/user/selected');
+        const selectedLanguage = langResponse.data?.selectedLanguage?.id;
+        if (!selectedLanguage) return;
+        const progressResponse = await api.get(`/progress/${selectedLanguage}`);
+        const progress = progressResponse.data?.progress || {};
+        setStats({
+          xp: progress.total_xp || 0,
+          pts: progress.total_score || 0,
+          day: progress.current_streak || progress.streak_days || 0
+        });
+      } catch (error) {
+        console.error('Failed to fetch layout stats:', error);
+      }
+    };
+    fetchShellStats();
+  }, [location.pathname]);
 
+  const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
+  const handleDesktopToggle = () => setDesktopCollapsed((prev) => !prev);
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  const drawer = (
-    <StyledDrawer
+  const desktopDrawerWidth = desktopCollapsed ? drawerWidthCollapsed : drawerWidthExpanded;
+
+  const renderMenuList = (collapsed = false, onNavigate = () => {}) => (
+    <List sx={{ mt: 1.5, px: collapsed ? 1 : 1.2 }}>
+      {menuItems.map((item) => {
+        const selected = item.path === '/' ? location.pathname === '/' : location.pathname.startsWith(item.path);
+        const itemButton = (
+          <ListItemButton
+            selected={selected}
+            onClick={() => onNavigate(item.path)}
+            sx={{
+              my: 0.5,
+              borderRadius: 2,
+              minHeight: 48,
+              justifyContent: collapsed ? 'center' : 'initial',
+              px: collapsed ? 1 : 1.4,
+              color: '#e4eeff',
+              '& .MuiListItemIcon-root': {
+                minWidth: collapsed ? 0 : 40,
+                color: selected ? '#6cf2ff' : '#c7d7f0'
+              },
+              '& .MuiListItemText-primary': {
+                fontWeight: selected ? 800 : 600,
+                color: selected ? '#8ff7ff' : '#d5e3f8',
+                letterSpacing: '0.01em'
+              },
+              '&.Mui-selected': {
+                background: 'linear-gradient(135deg, rgba(0, 198, 255, 0.26), rgba(67, 108, 255, 0.23))',
+                border: '1px solid rgba(125, 236, 255, 0.5)'
+              },
+              '&:hover': {
+                backgroundColor: 'rgba(109, 178, 255, 0.16)'
+              }
+            }}
+          >
+            <ListItemIcon>{item.icon}</ListItemIcon>
+            {!collapsed && <ListItemText primary={item.text} />}
+          </ListItemButton>
+        );
+
+        return (
+          <ListItem key={item.text} disablePadding>
+            {collapsed ? <Tooltip title={item.text} placement="right">{itemButton}</Tooltip> : itemButton}
+          </ListItem>
+        );
+      })}
+    </List>
+  );
+
+  const mobileDrawer = (
+    <Drawer
       variant="temporary"
       anchor="left"
       open={mobileOpen}
       onClose={handleDrawerToggle}
       ModalProps={{ keepMounted: true }}
-      sx={{ width: drawerWidth }}
-    >
-      <DrawerHeader>
-        <GlowingLogo variant="h6">KODESK</GlowingLogo>
-        <Typography variant="body2" color="textSecondary" sx={{ textAlign: 'center' }}>
-          Code Quest Arena
-        </Typography>
-      </DrawerHeader>
-
-      <List sx={{ mt: 2 }}>
-        {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding>
-            <MenuItemStyled
-              selected={item.path === '/' ? location.pathname === '/' : location.pathname.startsWith(item.path)}
-              onClick={() => {
-                navigate(item.path);
-                setMobileOpen(false);
-              }}
-            >
-              <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
-            </MenuItemStyled>
-          </ListItem>
-        ))}
-      </List>
-
-      <Divider sx={{ my: 2, borderColor: `${colors.primary}40` }} />
-
-      <Box sx={{ px: 2, py: 2 }}>
-        <Typography variant="caption" sx={{ color: `${colors.primary}80`, fontWeight: 700 }}>
-          CURRENT PLAYER
-        </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-          <Avatar sx={{ width: 40, height: 40, background: `linear-gradient(135deg, ${colors.primary}, ${colors.accent})` }}>
-            {user?.username?.[0]?.toUpperCase()}
-          </Avatar>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography variant="body2" sx={{ fontWeight: 600, color: colors.primary }}>
-              {user?.username}
-            </Typography>
-            <Typography variant="caption" sx={{ color: colors.text }}>
-              Level 1
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
-
-      <Box sx={{ px: 2, py: 2, mt: 'auto' }}>
-        <Button
-          fullWidth
-          variant="outlined"
-          startIcon={<LogoutIcon />}
-          onClick={handleLogout}
-          sx={{
-            borderColor: colors.error,
-            color: colors.error,
-            '&:hover': {
-              backgroundColor: `${colors.error}15`,
-              boxShadow: `0 0 15px ${colors.error}60`,
-            },
-          }}
-        >
-          Logout
-        </Button>
-      </Box>
-    </StyledDrawer>
-  );
-
-  // Desktop drawer
-  const desktopDrawer = (
-    <Box
-      sx={{
-        width: drawerWidth,
-        background: `linear-gradient(180deg, ${colors.surface} 0%, ${colors.surfaceLight} 100%)`,
-        borderRight: `1px solid ${colors.primary}40`,
-        backdropFilter: 'blur(20px)',
-        height: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'fixed',
-        left: 0,
-        top: 0,
-        zIndex: 1000,
+      PaperProps={{
+        sx: {
+          width: drawerWidthExpanded,
+          background: 'linear-gradient(180deg, #131f3b 0%, #1b2a4f 100%)',
+          color: '#dce9ff',
+          borderRight: '1px solid rgba(137, 191, 255, 0.3)'
+        }
       }}
     >
-      <DrawerHeader>
-        <GlowingLogo
-          variant="h6"
-          onClick={() => navigate('/')}
-          sx={{ cursor: 'pointer' }}
-        >
-          KODESK
-        </GlowingLogo>
-        <Typography variant="body2" color="textSecondary" sx={{ textAlign: 'center', fontSize: '0.75rem' }}>
-          Code Quest Arena
-        </Typography>
-      </DrawerHeader>
-
-      <List sx={{ mt: 2, flex: 1, px: 1 }}>
-        {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding>
-            <MenuItemStyled
-              selected={item.path === '/' ? location.pathname === '/' : location.pathname.startsWith(item.path)}
-              onClick={() => navigate(item.path)}
-              fullWidth
-            >
-              <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
-            </MenuItemStyled>
-          </ListItem>
-        ))}
-      </List>
-
-      <Divider sx={{ my: 2, borderColor: `${colors.primary}40`, mx: 1 }} />
-
-      <Box sx={{ px: 2, py: 2 }}>
-        <Typography variant="caption" sx={{ color: `${colors.primary}80`, fontWeight: 700 }}>
-          PLAYER STATS
-        </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, mb: 2 }}>
-          <Avatar sx={{ width: 40, height: 40, background: `linear-gradient(135deg, ${colors.primary}, ${colors.accent})` }}>
-            {user?.username?.[0]?.toUpperCase()}
-          </Avatar>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography variant="body2" sx={{ fontWeight: 600, color: colors.primary }}>
-              {user?.username}
-            </Typography>
-            <Typography variant="caption" sx={{ color: colors.text }}>
-              Level 1 Pioneer
-            </Typography>
-          </Box>
-        </Box>
-
-        <Stack spacing={1}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, background: `${colors.primary}10`, borderRadius: 1 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <StarIcon sx={{ fontSize: '1rem', color: colors.accent }} />
-              <Typography variant="caption">XP</Typography>
-            </Box>
-            <Typography variant="caption" sx={{ fontWeight: 700, color: colors.accent }}>0</Typography>
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, background: `${colors.secondary}10`, borderRadius: 1 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <TrophyIcon sx={{ fontSize: '1rem', color: colors.secondary }} />
-              <Typography variant="caption">Score</Typography>
-            </Box>
-            <Typography variant="caption" sx={{ fontWeight: 700, color: colors.secondary }}>0</Typography>
-          </Box>
-        </Stack>
+      <Box sx={{ p: 2.2, borderBottom: '1px solid rgba(137, 191, 255, 0.25)' }}>
+        <Typography sx={{ fontWeight: 900, fontSize: '1.5rem', color: '#76f6ff', letterSpacing: '0.15em' }}>KODESK</Typography>
+        <Typography sx={{ color: '#9db3d5', fontSize: 13, mt: 0.3 }}>Code Quest Arena</Typography>
       </Box>
-
-      <Box sx={{ px: 2, py: 2 }}>
-        <Button
-          fullWidth
-          variant="outlined"
-          startIcon={<LogoutIcon />}
-          onClick={handleLogout}
-          size="small"
-          sx={{
-            borderColor: colors.error,
-            color: colors.error,
-            '&:hover': {
-              backgroundColor: `${colors.error}15`,
-              boxShadow: `0 0 15px ${colors.error}60`,
-            },
-          }}
-        >
+      {renderMenuList(false, (path) => {
+        navigate(path);
+        setMobileOpen(false);
+      })}
+      <Box sx={{ mt: 'auto', p: 2 }}>
+        <Button fullWidth variant="outlined" startIcon={<LogoutIcon />} onClick={handleLogout} sx={{ borderColor: '#ff7c9a', color: '#ffb6c6' }}>
           Logout
         </Button>
       </Box>
-    </Box>
+    </Drawer>
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      {/* Desktop Drawer */}
-      <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-        {desktopDrawer}
-      </Box>
-
-      {/* Main Content */}
-      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', ml: { xs: 0, md: `${drawerWidth}px` } }}>
-        {/* AppBar */}
-        <StyledAppBar position="sticky">
-          <Toolbar>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="start"
-              onClick={handleDrawerToggle}
-              sx={{ mr: 2, display: { md: 'none' } }}
-            >
-              <MenuIcon />
+    <Box sx={{ display: 'flex', minHeight: '100vh', background: '#07122a' }}>
+      <Box
+        sx={{
+          display: { xs: 'none', md: 'flex' },
+          width: desktopDrawerWidth,
+          transition: 'width 0.22s ease',
+          background: 'linear-gradient(180deg, #152243 0%, #1f2b50 100%)',
+          borderRight: '1px solid rgba(137, 191, 255, 0.25)',
+          flexDirection: 'column',
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          zIndex: 1200
+        }}
+      >
+        <Box sx={{ px: desktopCollapsed ? 1.2 : 2.2, py: 2, borderBottom: '1px solid rgba(137, 191, 255, 0.25)' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: desktopCollapsed ? 'center' : 'space-between', gap: 1 }}>
+            {!desktopCollapsed && (
+              <Box>
+                <Typography sx={{ fontWeight: 900, fontSize: '1.5rem', color: '#76f6ff', letterSpacing: '0.15em' }}>KODESK</Typography>
+                <Typography sx={{ color: '#9db3d5', fontSize: 13, mt: 0.2 }}>Code Quest Arena</Typography>
+              </Box>
+            )}
+            <IconButton onClick={handleDesktopToggle} sx={{ color: '#c8d8f1' }}>
+              {desktopCollapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
             </IconButton>
-
-            <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', flex: 1 }}>
-              <GlowingLogo variant="h6" sx={{ mr: 3 }}>
-                QUESTING
-              </GlowingLogo>
-              <Typography variant="body2" sx={{ color: `${colors.primary}80` }}>
-                Embrace the Code
-              </Typography>
-            </Box>
-
-            <StatsContainer>
-              <StatItem>
-                <StarIcon />
-                <span className="stat-value">0 XP</span>
-              </StatItem>
-              <StatItem>
-                <TrophyIcon />
-                <span className="stat-value">0 PTS</span>
-              </StatItem>
-              <StatItem>
-                <FireIcon />
-                <span className="stat-value">0 DAY</span>
-              </StatItem>
-            </StatsContainer>
-
-            <Tooltip title={user?.username}>
-              <Badge
-                overlap="circular"
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right',
-                }}
-                variant="dot"
-                sx={{
-                  '& .MuiBadge-badge': {
-                    backgroundColor: colors.success,
-                    boxShadow: `0 0 10px ${colors.success}`,
-                    height: 14,
-                    minWidth: 14,
-                    borderRadius: '50%',
-                  },
-                }}
-              >
-                <Avatar
-                  sx={{
-                    background: `linear-gradient(135deg, ${colors.primary}, ${colors.accent})`,
-                    width: 40,
-                    height: 40,
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => navigate('/profile')}
-                >
-                  {user?.username?.[0]?.toUpperCase()}
-                </Avatar>
-              </Badge>
-            </Tooltip>
-            <Tooltip title="Logout">
-              <IconButton color="inherit" onClick={handleLogout} sx={{ ml: 1 }}>
-                <LogoutIcon />
-              </IconButton>
-            </Tooltip>          </Toolbar>
-        </StyledAppBar>
-
-        {/* Mobile Drawer */}
-        <Box sx={{ display: { md: 'none' } }}>
-          {drawer}
+          </Box>
         </Box>
 
-        {/* Page Content */}
-        <Box sx={{ flex: 1, overflow: 'auto', p: { xs: 1, sm: 2, md: 3 } }}>
+        {renderMenuList(desktopCollapsed, (path) => navigate(path))}
+
+        {!desktopCollapsed && (
+          <>
+            <Divider sx={{ my: 1.6, borderColor: 'rgba(137, 191, 255, 0.25)' }} />
+            <Box sx={{ px: 2.2 }}>
+              <Typography sx={{ color: '#67c9ff', fontSize: 12, fontWeight: 800, letterSpacing: '0.05em', mb: 1.2 }}>
+                PLAYER STATS
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.1, mb: 1.4 }}>
+                <Avatar sx={{ width: 42, height: 42, bgcolor: '#27f08f', color: '#03211a', fontWeight: 800 }}>
+                  {user?.username?.[0]?.toUpperCase()}
+                </Avatar>
+                <Box sx={{ minWidth: 0 }}>
+                  <Typography sx={{ color: '#d9ebff', fontWeight: 700, lineHeight: 1.2 }}>{user?.username}</Typography>
+                  <Typography sx={{ color: '#9db3d5', fontSize: 12 }}>Level 1 Pioneer</Typography>
+                </Box>
+              </Box>
+              <Box sx={{ p: 1.2, borderRadius: 2, bgcolor: 'rgba(58, 99, 153, 0.34)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.9 }}>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}><StarIcon sx={{ fontSize: 16, color: '#76f6ff' }} /><Typography sx={{ color: '#bfd3ef', fontSize: 13 }}>XP</Typography></Box>
+                <Typography sx={{ color: '#76f6ff', fontWeight: 800, fontSize: 13 }}>{stats.xp}</Typography>
+              </Box>
+              <Box sx={{ p: 1.2, borderRadius: 2, bgcolor: 'rgba(94, 69, 127, 0.34)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}><TrophyIcon sx={{ fontSize: 16, color: '#ff7bc2' }} /><Typography sx={{ color: '#bfd3ef', fontSize: 13 }}>Score</Typography></Box>
+                <Typography sx={{ color: '#ff7bc2', fontWeight: 800, fontSize: 13 }}>{stats.pts}</Typography>
+              </Box>
+            </Box>
+          </>
+        )}
+
+        <Box sx={{ p: 2, mt: 'auto' }}>
+          <Button fullWidth variant="outlined" onClick={handleLogout} startIcon={<LogoutIcon />} sx={{ borderColor: '#ff7c9a', color: '#ffb6c6', minWidth: 0 }}>
+            {!desktopCollapsed && 'Logout'}
+          </Button>
+        </Box>
+      </Box>
+
+      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', ml: { xs: 0, md: `${desktopDrawerWidth}px` }, transition: 'margin-left 0.22s ease' }}>
+        <AppBar
+          position="sticky"
+          elevation={0}
+          sx={{
+            bgcolor: 'rgba(11, 23, 49, 0.96)',
+            borderBottom: '1px solid rgba(128, 189, 255, 0.22)',
+            backdropFilter: 'blur(12px)'
+          }}
+        >
+          <Toolbar sx={{ minHeight: 70 }}>
+            <IconButton color="inherit" edge="start" onClick={handleDrawerToggle} sx={{ mr: 1.2, display: { md: 'none' } }}>
+              <MenuIcon />
+            </IconButton>
+            <Box sx={{ flex: 1 }}>
+              <Typography sx={{ fontWeight: 800, letterSpacing: '0.2em', color: '#8df7ff', fontSize: 15 }}>QUESTING</Typography>
+              <Typography sx={{ color: '#92a8c8', fontSize: 13 }}>Embrace the Code</Typography>
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 1, mr: 1.2 }}>
+              <Chip icon={<StarIcon sx={{ color: '#76f6ff !important' }} />} label={`${stats.xp} XP`} sx={{ color: '#88f8ff', bgcolor: 'rgba(44, 80, 124, 0.52)', border: '1px solid rgba(118, 246, 255, 0.35)', fontWeight: 700 }} />
+              <Chip icon={<TrophyIcon sx={{ color: '#6eff95 !important' }} />} label={`${stats.pts} PTS`} sx={{ color: '#8effaf', bgcolor: 'rgba(44, 80, 124, 0.52)', border: '1px solid rgba(110, 255, 149, 0.35)', fontWeight: 700 }} />
+              <Chip icon={<FireIcon sx={{ color: '#53d2ff !important' }} />} label={`${stats.day} DAY`} sx={{ color: '#7bdfff', bgcolor: 'rgba(44, 80, 124, 0.52)', border: '1px solid rgba(83, 210, 255, 0.35)', fontWeight: 700 }} />
+            </Box>
+
+            <Tooltip title={user?.username || ''}>
+              <Avatar
+                onClick={() => navigate('/profile')}
+                sx={{ bgcolor: '#27f08f', color: '#03211a', fontWeight: 900, cursor: 'pointer', width: 38, height: 38 }}
+              >
+                {user?.username?.[0]?.toUpperCase()}
+              </Avatar>
+            </Tooltip>
+            <IconButton color="inherit" onClick={handleLogout} sx={{ ml: 0.6 }}>
+              <LogoutIcon />
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+
+        {mobileDrawer}
+
+        <Box sx={{ flex: 1, overflow: 'auto', p: { xs: 1.2, sm: 2, md: 2.6 } }}>
           <Outlet />
         </Box>
       </Box>

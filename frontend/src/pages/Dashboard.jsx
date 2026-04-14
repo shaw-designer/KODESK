@@ -20,7 +20,7 @@ import {
   EmojiEvents as TrophyIcon,
   LocalFireDepartment as FireIcon,
   Star as StarIcon,
-  Bolt as BoltIcon
+  SportsEsports as SportsEsportsIcon
 } from '@mui/icons-material';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -89,7 +89,7 @@ function Dashboard() {
   const quickActions = [
     { label: 'Quests', sub: 'Continue challenges', icon: <CodeIcon />, onClick: () => navigate(`/tasks/${selectedLanguage.id}`) },
     { label: 'Learning', sub: 'Open track content', icon: <SchoolIcon />, onClick: () => navigate(`/learning/${selectedLanguage.id}`) },
-    { label: 'Arcade', sub: 'Play coding games', icon: <BoltIcon />, onClick: () => navigate('/games') },
+    { label: 'Arcade', sub: 'Unlocked by quest levels', icon: <SportsEsportsIcon />, onClick: () => navigate('/games') },
     { label: 'Realms', sub: 'Switch language', icon: <TrophyIcon />, onClick: () => navigate('/languages') }
   ];
 

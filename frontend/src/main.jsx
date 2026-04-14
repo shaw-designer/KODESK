@@ -7,7 +7,6 @@ import { createGlobalStyle } from 'styled-components';
 import App from './App';
 import { AuthProvider } from './contexts/AuthContext';
 import modernTheme, { globalAnimations, colors } from './theme/modernTheme';
-import OpeningSplash from './components/OpeningSplash';
 
 // Create global styles with animations
 const GlobalStyle = createGlobalStyle`
@@ -103,7 +102,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <CssBaseline />
         <GlobalStyle />
         <ParticleBackground />
-        <OpeningSplash />
         <AuthProvider>
           <App />
         </AuthProvider>
