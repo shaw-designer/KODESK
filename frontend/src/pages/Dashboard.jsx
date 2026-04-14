@@ -134,8 +134,8 @@ function Dashboard() {
           { title: 'Daily Streak', value: 0, color: '#7a43b6' }
         ].map((metric) => (
           <Grid item xs={12} sm={6} md={3} key={metric.title}>
-            <Card sx={{ borderRadius: 3, border: '1px solid #d8e4f5', backgroundColor: '#fff' }}>
-              <CardContent>
+            <Card sx={{ borderRadius: 3, border: '1px solid #d8e4f5', backgroundColor: '#fff', height: '100%' }}>
+              <CardContent sx={{ minHeight: 112, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 <Typography variant="caption" sx={{ color: '#6b7f9f', fontWeight: 700 }}>
                   {metric.title}
                 </Typography>
@@ -157,18 +157,19 @@ function Dashboard() {
                 borderRadius: 3,
                 border: '1px solid #d8e4f5',
                 cursor: 'pointer',
+                height: '100%',
                 transition: 'all 0.2s ease',
                 '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 10px 22px rgba(20, 53, 103, 0.12)' }
               }}
             >
-              <CardContent sx={{ textAlign: 'center', p: 3 }}>
+              <CardContent sx={{ textAlign: 'center', p: 3, minHeight: 192, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 0.8 }}>
                 <Box sx={{ display: 'inline-grid', placeItems: 'center', width: 50, height: 50, borderRadius: '50%', bgcolor: '#e8f0ff', color: '#1f58b2', mb: 1.2 }}>
                   {action.icon}
                 </Box>
-                <Typography variant="h6" sx={{ fontWeight: 800, color: '#163761' }}>
+                <Typography variant="h6" sx={{ fontWeight: 800, color: '#163761', lineHeight: 1.2 }}>
                   {action.label}
                 </Typography>
-                <Typography variant="body2" sx={{ color: '#607798' }}>
+                <Typography variant="body2" sx={{ color: '#607798', lineHeight: 1.35, minHeight: 38 }}>
                   {action.sub}
                 </Typography>
               </CardContent>
