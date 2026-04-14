@@ -26,6 +26,7 @@ function PrivateRoute({ children }) {
 
 function App() {
   const [defaultLanguage, setDefaultLanguage] = useState('python');
+  const [showIntro, setShowIntro] = useState(true);
   const { user, loading } = useAuth();
 
   useEffect(() => {
@@ -47,50 +48,127 @@ function App() {
     return () => { mounted = false; };
   }, [user]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setShowIntro(false), 3800);
+    return () => clearTimeout(timer);
+  }, []);
+
   if (loading) {
     return <div>Loading...</div>;
   }
 
   return (
-    <Routes>
-      {/* Public launchpad route for guests */}
-      <Route path="/" element={<Navigate to={user ? '/learning' : '/launchpad'} replace />} />
-      <Route path="launchpad" element={user ? <Navigate to="/learning" replace /> : <LearningContent />} />
-      <Route path="cpp" element={<LearningContent />} />
-      <Route path="java" element={<LearningContent />} />
-      <Route path="python" element={<LearningContent />} />
+    <>
+      {showIntro && (
+        <div className="intro-overlay">
+          <div className="intro-content">
+            <img
+              className="intro-gif"
+              src="/assets/Arcade.gif"
+              alt="Arcade animation"
+            />
+            <h1 className="intro-title">WHERE PLAY BEGINS, CODE FOLLOWS</h1>
+          </div>
+        </div>
+      )}
 
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Routes>
+        {/* Public launchpad route for guests */}
+        <Route path="/" element={<Navigate to={user ? '/learning' : '/launchpad'} replace />} />
+        <Route path="launchpad" element={user ? <Navigate to="/learning" replace /> : <LearningContent />} />
+        <Route path="cpp" element={<LearningContent />} />
+        <Route path="java" element={<LearningContent />} />
+        <Route path="python" element={<LearningContent />} />
 
-      <Route
-        path="/"
-        element={
-          <PrivateRoute>
-            <Layout />
-          </PrivateRoute>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        <Route
+          path="/"
+          element={
+            <PrivateRoute>
+              <Layout />
+            </PrivateRoute>
+          }
+        >
+          <Route index element={<Dashboard />} />
+          <Route path="learning" element={<LearningContent />} />
+          <Route path="learning/cpp" element={<LearningContent />} />
+          <Route path="learning/java" element={<LearningContent />} />
+          <Route path="learning/python" element={<LearningContent />} />
+          <Route path="languages" element={<LanguageSelection />} />
+
+          {/* Redirect incomplete routes to user's selected/default language */}
+          <Route path="tasks" element={<Navigate to={`/tasks/${defaultLanguage}`} replace />} />
+
+          {/* Actual routes with language parameter */}
+          <Route path="tasks/:language" element={<Tasks />} />
+          <Route path="task/:taskId" element={<TaskDetail />} />
+          <Route path="games" element={<Games />} />
+          <Route path="profile" element={<Profile />} />
+        </Route>
+
+        {/* Catch-all route */}
+        <Route path="*" element={<Navigate to={user ? '/learning' : '/launchpad'} replace />} />
+      </Routes>
+
+      <style>{`
+        .intro-overlay {
+          position: fixed;
+          inset: 0;
+          z-index: 2000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: radial-gradient(circle at top, rgba(14, 165, 233, 0.2), transparent 35%),
+                      linear-gradient(135deg, #020617 0%, #071326 55%, #0f1d3b 100%);
+          backdrop-filter: blur(12px);
+          animation: introFadeOut 3.8s ease forwards;
+          pointer-events: none;
         }
-      >
-        <Route index element={<Dashboard />} />
-        <Route path="learning" element={<LearningContent />} />
-        <Route path="learning/cpp" element={<LearningContent />} />
-        <Route path="learning/java" element={<LearningContent />} />
-        <Route path="learning/python" element={<LearningContent />} />
-        <Route path="languages" element={<LanguageSelection />} />
 
-        {/* Redirect incomplete routes to user's selected/default language */}
-        <Route path="tasks" element={<Navigate to={`/tasks/${defaultLanguage}`} replace />} />
+        .intro-content {
+          text-align: center;
+          color: #e0f7ff;
+          padding: 24px;
+        }
 
-        {/* Actual routes with language parameter */}
-        <Route path="tasks/:language" element={<Tasks />} />
-        <Route path="task/:taskId" element={<TaskDetail />} />
-        <Route path="games" element={<Games />} />
-        <Route path="profile" element={<Profile />} />
-      </Route>
+        .intro-gif {
+          width: min(320px, 80vw);
+          max-width: 360px;
+          border-radius: 18px;
+          box-shadow: 0 0 80px rgba(0, 255, 255, 0.25);
+          margin-bottom: 24px;
+          animation: gifFloat 2.8s ease-in-out infinite alternate;
+        }
 
-      {/* Catch-all route */}
-      <Route path="*" element={<Navigate to={user ? '/learning' : '/launchpad'} replace />} />
-    </Routes>
+        .intro-title {
+          margin: 0;
+          font-size: clamp(2.5rem, 4vw, 4.8rem);
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          line-height: 1.05;
+          text-shadow: 0 0 28px rgba(56, 189, 248, 0.45), 0 0 60px rgba(0, 238, 255, 0.15);
+          animation: titlePulse 3.4s ease-in-out forwards;
+        }
+
+        @keyframes gifFloat {
+          from { transform: translateY(0px) scale(1); }
+          to { transform: translateY(-12px) scale(1.02); }
+        }
+
+        @keyframes titlePulse {
+          0% { opacity: 0; transform: translateY(20px) scale(0.98); }
+          40% { opacity: 1; transform: translateY(0) scale(1); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes introFadeOut {
+          0%, 80% { opacity: 1; }
+          100% { opacity: 0; visibility: hidden; }
+        }
+      `}</style>
+    </>
   );
 }
 
