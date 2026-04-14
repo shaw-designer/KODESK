@@ -12,7 +12,8 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
-  LinearProgress
+  LinearProgress,
+  Stack
 } from '@mui/material';
 import { Lock as LockIcon, SportsEsports as GameIcon, Close as CloseIcon } from '@mui/icons-material';
 import api from '../services/api';
@@ -81,7 +82,12 @@ function Games() {
                   <Button
                     variant={game.unlocked ? 'contained' : 'outlined'}
                     disabled={!game.unlocked}
-                    onClick={() => setActiveGame(game)}
+                    onClick={() =>
+                      setActiveGame({
+                        ...game,
+                        play_url: `${game.play_url}${game.play_url.includes('?') ? '&' : '?'}v=${Date.now()}`
+                      })
+                    }
                     sx={{
                       fontWeight: 700,
                       ...(game.unlocked
@@ -109,9 +115,18 @@ function Games() {
           <>
             <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography sx={{ fontWeight: 800 }}>{activeGame.title}</Typography>
-              <IconButton onClick={() => setActiveGame(null)}>
-                <CloseIcon />
-              </IconButton>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => window.open(activeGame.play_url, '_blank', 'noopener,noreferrer')}
+                >
+                  Open Tab
+                </Button>
+                <IconButton onClick={() => setActiveGame(null)}>
+                  <CloseIcon />
+                </IconButton>
+              </Stack>
             </DialogTitle>
             <DialogContent sx={{ p: 0 }}>
               <Box sx={{ width: '100%', height: '75vh', borderTop: '1px solid #dce6f4' }}>
@@ -119,7 +134,7 @@ function Games() {
                   title={activeGame.title}
                   src={activeGame.play_url}
                   style={{ width: '100%', height: '100%', border: 'none' }}
-                  allow="fullscreen"
+                  allow="autoplay; fullscreen; gamepad; microphone"
                 />
               </Box>
             </DialogContent>

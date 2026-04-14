@@ -9,8 +9,37 @@ const bonusOverlay = document.getElementById('bonus-overlay');
 let score = 0; let lives = 3; let lastHole;
 let gameActive = true; let isMoleUp = false;
 let topScore = localStorage.getItem('bunnyHighScore') || 0;
+let audioContext;
 
 highScoreBoard.textContent = topScore;
+
+function ensureAudioContext() {
+    if (!audioContext) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) audioContext = new AudioCtx();
+    }
+    if (audioContext && audioContext.state === 'suspended') {
+        audioContext.resume();
+    }
+}
+
+function playSfx(type) {
+    ensureAudioContext();
+    if (!audioContext) return;
+    const now = audioContext.currentTime;
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    osc.type = type === 'bomb' ? 'square' : type === 'gold' ? 'triangle' : 'sine';
+    osc.frequency.setValueAtTime(type === 'bomb' ? 180 : type === 'gold' ? 720 : 420, now);
+    osc.frequency.exponentialRampToValueAtTime(type === 'bomb' ? 70 : type === 'gold' ? 980 : 260, now + 0.14);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.12, now + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    osc.start(now);
+    osc.stop(now + 0.17);
+}
 
 // --- LOTTIE BONUS FUNCTION ---
 function triggerFullScreenBonus(jsonUrl) {
@@ -76,11 +105,13 @@ function whack(e) {
 
     if (type === 'bunny') {
         score++;
+        playSfx('bunny');
         // Play local poof at the hole location
         playLocalLottie(x, y, 'effects/bunny.json'); 
     } 
     else if (type === 'bomb') {
         lives--;
+        playSfx('bomb');
         // Play local explosion at the hole location
         playLocalLottie(x, y, 'effects/explosion.json'); 
         
@@ -90,6 +121,7 @@ function whack(e) {
     } 
     else if (type === 'gold') {
         score += 5;
+        playSfx('gold');
         // Keep the big fullscreen effect for the crown
         triggerFullScreenBonus('effects/sparkle.json'); 
         if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
@@ -128,6 +160,7 @@ function resetGame() {
 holes.forEach(hole => {
     const mole = hole.querySelector('.mole');
     mole.addEventListener('mousedown', whack);
+    mole.addEventListener('click', whack);
     mole.addEventListener('touchstart', (e) => { e.preventDefault(); whack(e); });
 });
 

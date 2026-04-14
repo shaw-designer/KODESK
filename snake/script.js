@@ -47,29 +47,29 @@ $(function() {
 	if (player == 1) $(".rollthedice").addClass("pressgo");
 
 	var audioElementPos = document.createElement('audio');
-    audioElementPos.setAttribute('src', 'http://www.stezzer.com/b/audio/pos1.ogg');
+    audioElementPos.setAttribute('src', 'https://www.stezzer.com/b/audio/pos1.ogg');
 
 
 	var audioElementDice = document.createElement('audio');
-    audioElementDice.setAttribute('src', 'http://www.stezzer.com/b/audio/dice.ogg');
+    audioElementDice.setAttribute('src', 'https://www.stezzer.com/b/audio/dice.ogg');
 
    	var audioElementSnake = document.createElement('audio');
-    audioElementSnake.setAttribute('src', 'http://www.stezzer.com/b/audio/wahwah.ogg');
+    audioElementSnake.setAttribute('src', 'https://www.stezzer.com/b/audio/wahwah.ogg');
 
    	var audioElementReel = document.createElement('audio');
-    audioElementReel.setAttribute('src', 'http://www.stezzer.com/b/audio/reel.ogg');
+    audioElementReel.setAttribute('src', 'https://www.stezzer.com/b/audio/reel.ogg');
 
    	var audioElementReels = document.createElement('audio');
-    audioElementReels.setAttribute('src', 'http://www.stezzer.com/b/audio/reels.ogg');
+    audioElementReels.setAttribute('src', 'https://www.stezzer.com/b/audio/reels.ogg');
 
    	var audioElementDance = document.createElement('audio');
-    audioElementDance.setAttribute('src', 'http://www.stezzer.com/b/audio/dance.ogg');
+    audioElementDance.setAttribute('src', 'https://www.stezzer.com/b/audio/dance.ogg');
 
    	var audioElementSpin = document.createElement('audio');
-    audioElementSpin.setAttribute('src', 'http://www.stezzer.com/b/audio/woo.ogg');
+    audioElementSpin.setAttribute('src', 'https://www.stezzer.com/b/audio/woo.ogg');
 
    	var audioElementLoser = document.createElement('audio');
-    audioElementLoser.setAttribute('src', 'http://www.stezzer.com/b/audio/loser5.ogg');
+    audioElementLoser.setAttribute('src', 'https://www.stezzer.com/b/audio/loser5.ogg');
 
 
 	$(".atthestart").click (function() {
