@@ -56,6 +56,9 @@ function App() {
       {/* Public launchpad route for guests */}
       <Route path="/" element={<Navigate to={user ? '/learning' : '/launchpad'} replace />} />
       <Route path="launchpad" element={user ? <Navigate to="/learning" replace /> : <LearningContent />} />
+      <Route path="cpp" element={<LearningContent />} />
+      <Route path="java" element={<LearningContent />} />
+      <Route path="python" element={<LearningContent />} />
 
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
@@ -70,9 +73,9 @@ function App() {
       >
         <Route index element={<Dashboard />} />
         <Route path="learning" element={<LearningContent />} />
-        <Route path="cpp" element={<LearningContent />} />
-        <Route path="java" element={<LearningContent />} />
-        <Route path="python" element={<LearningContent />} />
+        <Route path="learning/cpp" element={<LearningContent />} />
+        <Route path="learning/java" element={<LearningContent />} />
+        <Route path="learning/python" element={<LearningContent />} />
         <Route path="languages" element={<LanguageSelection />} />
 
         {/* Redirect incomplete routes to user's selected/default language */}

@@ -30,7 +30,9 @@ function LearningContent() {
   const isLaunchpad = currentPath === '/launchpad';
   const isLearningHome = currentPath === '/learning';
   const languageRoutes = ['cpp', 'java', 'python'];
-  const language = languageRoutes.includes(currentPath.slice(1)) ? currentPath.slice(1) : null;
+  const pathSegments = currentPath.split('/').filter(Boolean);
+  const lastSegment = pathSegments[pathSegments.length - 1] || '';
+  const language = languageRoutes.includes(lastSegment) ? lastSegment : null;
 
   useEffect(() => {
     if (language) {
@@ -161,7 +163,7 @@ function LearningContent() {
               ].map((item, index) => (
                 <ListItem key={item.label} disablePadding>
                   <ListItemButton
-                    onClick={() => navigate('/login')}
+                    onClick={() => navigate(`/${item.route}`)}
                     sx={{
                       px: 0,
                       py: 1.5,
@@ -186,16 +188,6 @@ function LearningContent() {
                       <Typography variant="body1" sx={{ fontWeight: 700, fontSize: '1rem' }}>
                         {item.label}
                       </Typography>
-                      <Chip
-                        size="small"
-                        label="Login Required"
-                        sx={{
-                          ml: 1.5,
-                          backgroundColor: 'rgba(0, 217, 255, 0.15)',
-                          color: '#a7eeff',
-                          border: '1px solid rgba(0, 217, 255, 0.32)'
-                        }}
-                      />
                     </Box>
                   </ListItemButton>
                 </ListItem>
@@ -262,9 +254,9 @@ function LearningContent() {
         }}
       >
         {[
-          { label: 'C++', route: '/cpp', description: 'Build strong fundamentals in memory, performance, and control flow.' },
-          { label: 'Java', route: '/java', description: 'Master object-oriented patterns and scalable application structure.' },
-          { label: 'Python', route: '/python', description: 'Learn fast scripting, automation, and productive coding workflows.' }
+          { label: 'C++', route: '/learning/cpp', description: 'Build strong fundamentals in memory, performance, and control flow.' },
+          { label: 'Java', route: '/learning/java', description: 'Master object-oriented patterns and scalable application structure.' },
+          { label: 'Python', route: '/learning/python', description: 'Learn fast scripting, automation, and productive coding workflows.' }
         ].map((item) => (
           <Paper
             key={item.label}

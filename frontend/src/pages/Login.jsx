@@ -117,11 +117,7 @@ function Login() {
                 position: 'fixed',
                 inset: 0,
                 zIndex: 9999,
-                background: 'rgba(4, 11, 26, 0.98)',
-                display: 'grid',
-                placeItems: 'center',
-                textAlign: 'center',
-                p: 3
+                overflow: 'hidden'
               }}
             >
               <Box
@@ -129,18 +125,12 @@ function Login() {
                 src="/assets/login.gif"
                 alt="Login Success"
                 sx={{
-                  width: { xs: '90%', sm: '72%', md: '56%' },
-                  maxWidth: 800,
-                  borderRadius: 4,
-                  boxShadow: '0 0 140px rgba(0, 217, 255, 0.32)'
+                  width: '100vw',
+                  height: '100vh',
+                  objectFit: 'cover',
+                  display: 'block'
                 }}
               />
-              <Typography variant="h5" sx={{ mt: 3, color: '#fff', fontWeight: 700, letterSpacing: '0.12em' }}>
-                Access Granted
-              </Typography>
-              <Typography variant="body1" sx={{ mt: 1, color: 'rgba(255,255,255,0.8)' }}>
-                Launching your arcade experience...
-              </Typography>
             </Box>
           )}
         </Paper>
