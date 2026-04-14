@@ -9,7 +9,9 @@ import {
   Grid,
   Card,
   CardContent,
-  Alert
+  Alert,
+  Avatar,
+  Chip
 } from '@mui/material';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -48,14 +50,26 @@ function Profile() {
 
   return (
     <Container maxWidth="md">
-      <Typography variant="h4" gutterBottom>
-        Profile Settings
-      </Typography>
+      <Paper sx={{ p: 3, borderRadius: 4, mb: 3, border: '1px solid #d6e4f8', background: 'linear-gradient(160deg, #eef5ff 0%, #ffffff 100%)' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Avatar sx={{ width: 64, height: 64, bgcolor: '#1f58b2', fontWeight: 800, fontSize: 28 }}>
+            {user?.username?.[0]?.toUpperCase() || 'U'}
+          </Avatar>
+          <Box>
+            <Typography variant="h4" sx={{ fontWeight: 800, color: '#173a68' }}>
+              Profile
+            </Typography>
+            <Typography sx={{ color: '#4f678b' }}>
+              Manage your account details and personal identity.
+            </Typography>
+          </Box>
+        </Box>
+      </Paper>
 
-      <Grid container spacing={3} sx={{ mt: 2 }}>
+      <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
+          <Paper sx={{ p: 3, borderRadius: 3, border: '1px solid #d7e4f6', boxShadow: '0 10px 24px rgba(15, 49, 99, 0.10)' }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 800, color: '#1f58b2' }}>
               Personal Information
             </Typography>
             {message && (
@@ -84,7 +98,7 @@ function Profile() {
               <Button
                 type="submit"
                 variant="contained"
-                sx={{ mt: 2 }}
+                sx={{ mt: 2, bgcolor: '#1f58b2', fontWeight: 700, '&:hover': { bgcolor: '#18488f' } }}
                 disabled={loading}
               >
                 {loading ? 'Updating...' : 'Update Profile'}
@@ -94,15 +108,20 @@ function Profile() {
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <Card>
+          <Card sx={{ borderRadius: 3, border: '1px solid #d7e4f6' }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 800, color: '#1f58b2' }}>
                 Account Information
               </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Role: {user?.role || 'Student'}
+              <Chip
+                label={`Role: ${user?.role || 'Student'}`}
+                size="small"
+                sx={{ mb: 1.2, bgcolor: '#e8f0ff', color: '#1f58b2', fontWeight: 700 }}
+              />
+              <Typography variant="body2" sx={{ color: '#5b7293' }}>
+                Username: {user?.username || user?.name || 'N/A'}
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              <Typography variant="body2" sx={{ color: '#5b7293', mt: 0.8 }}>
                 User ID: {user?.id}
               </Typography>
             </CardContent>

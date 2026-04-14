@@ -49,36 +49,27 @@ const shimmer = keyframes`
 
 // Styled components
 const ArcadeHeader = styled(Box)`
-  text-align: center;
-  padding: 40px 20px 30px;
-  margin-bottom: 30px;
-  position: relative;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 200px;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, ${colors.primary}, transparent);
-  }
+  text-align: left;
+  padding: 26px 26px 22px;
+  margin-bottom: 26px;
+  border: 1px solid #d6e4f8;
+  border-radius: 18px;
+  background: linear-gradient(155deg, #eef5ff 0%, #ffffff 100%);
 `;
 
 const ArcadeTitle = styled(Typography)`
   && {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
     font-weight: 800;
-    letter-spacing: 8px;
-    background: linear-gradient(135deg, ${colors.primary}, ${colors.accent}, ${colors.secondary});
+    letter-spacing: 1px;
+    background: linear-gradient(135deg, #17478f, #1f58b2);
     background-size: 200% 200%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     animation: ${shimmer} 3s ease-in-out infinite;
-    text-transform: uppercase;
-    margin-bottom: 8px;
+    text-transform: none;
+    margin-bottom: 6px;
   }
 `;
 
@@ -97,11 +88,11 @@ const CategoryChip = styled(Chip)`
     letter-spacing: 0.5px;
     transition: all 0.3s ease;
     background: ${props => props.$active ?
-      `linear-gradient(135deg, ${colors.primary}40, ${colors.accent}40)` :
-      `${colors.surfaceLight}80`
+      `linear-gradient(135deg, #e3efff, #d5e6ff)` :
+      `#ffffff`
     };
-    border: 1px solid ${props => props.$active ? colors.primary : `${colors.primary}30`};
-    color: ${props => props.$active ? colors.primary : colors.text};
+    border: 1px solid ${props => props.$active ? '#1f58b2' : '#cfdff5'};
+    color: ${props => props.$active ? '#1f58b2' : '#2c4467'};
 
     &:hover {
       border-color: ${colors.primary};
@@ -111,9 +102,9 @@ const CategoryChip = styled(Chip)`
 `;
 
 const GameCard = styled(Box)`
-  background: linear-gradient(135deg, ${colors.surface}FF 0%, ${colors.surfaceLight}FF 100%);
-  border: 2px solid ${props => props.$glowColor || colors.primary}40;
-  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #d6e4f8;
+  border-radius: 14px;
   overflow: hidden;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -133,9 +124,9 @@ const GameCard = styled(Box)`
   }
 
   &:hover {
-    transform: translateY(-8px) scale(1.02);
-    border-color: ${props => props.$glowColor || colors.primary};
-    animation: ${glowPulse} 2s ease-in-out infinite;
+    transform: translateY(-3px);
+    border-color: #8eb2e5;
+    box-shadow: 0 12px 26px rgba(18, 54, 103, 0.14);
 
     .game-icon {
       animation: ${float} 2s ease-in-out infinite;
@@ -308,10 +299,10 @@ function Games() {
       {/* Arcade Header */}
       <ArcadeHeader>
         <ArcadeTitle variant="h2">
-          ARCADE
+          Arcade
         </ArcadeTitle>
-        <Typography variant="body1" sx={{ color: `${colors.text}99`, maxWidth: 500, mx: 'auto' }}>
-          Sharpen your coding skills with mini-games. Logic puzzles, debugging challenges, and speed trials await!
+        <Typography variant="body1" sx={{ color: '#4f678b', maxWidth: 580 }}>
+          Play short coding mini-games across logic, speed, debugging, and memory to sharpen your skills.
         </Typography>
       </ArcadeHeader>
 

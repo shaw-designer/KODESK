@@ -61,13 +61,17 @@ function LanguageSelection() {
   };
 
   return (
-    <Container>
-      <Typography variant="h4" gutterBottom>
-        Select Your Learning Track
-      </Typography>
-      <Typography variant="body1" color="text.secondary" paragraph>
-        Choose a programming language to start your coding journey. You can change this later from your dashboard.
-      </Typography>
+    <Container maxWidth="lg">
+      <Card sx={{ borderRadius: 4, border: '1px solid #d6e4f8', background: 'linear-gradient(155deg, #eef5ff 0%, #ffffff 100%)', mb: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: 800, color: '#173a68' }}>
+            Realms
+          </Typography>
+          <Typography variant="body1" sx={{ color: '#4f678b' }}>
+            Choose your active language track. You can switch realms anytime.
+          </Typography>
+        </CardContent>
+      </Card>
 
       {message && (
         <Alert severity={message.includes('Successfully') ? 'success' : 'error'} sx={{ mb: 3 }}>
@@ -75,7 +79,7 @@ function LanguageSelection() {
         </Alert>
       )}
 
-      <Grid container spacing={3} sx={{ mt: 2 }}>
+      <Grid container spacing={2.4}>
         {languages.map((language) => (
           <Grid item xs={12} md={4} key={language.id}>
             <Card
@@ -83,23 +87,25 @@ function LanguageSelection() {
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
-                border: selectedLanguage === language.id ? 2 : 0,
-                borderColor: 'primary.main'
+                borderRadius: 3,
+                border: selectedLanguage === language.id ? '2px solid #1f58b2' : '1px solid #d8e4f5',
+                boxShadow: selectedLanguage === language.id ? '0 12px 26px rgba(20, 54, 107, 0.14)' : 'none',
+                background: 'linear-gradient(160deg, #ffffff 0%, #f8fbff 100%)'
               }}
             >
               <CardContent sx={{ flexGrow: 1 }}>
                 <Box textAlign="center" mb={2}>
                   <Typography variant="h2">{language.icon}</Typography>
                 </Box>
-                <Typography variant="h5" component="h2" gutterBottom align="center">
+                <Typography variant="h5" component="h2" gutterBottom align="center" sx={{ fontWeight: 800, color: '#183a69' }}>
                   {language.name}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" align="center">
+                <Typography variant="body2" align="center" sx={{ color: '#5b7293' }}>
                   {language.description}
                 </Typography>
                 {selectedLanguage === language.id && (
                   <Box mt={2} textAlign="center">
-                    <Typography variant="body2" color="primary.main" fontWeight="bold">
+                    <Typography variant="body2" sx={{ color: '#1f58b2', fontWeight: 800 }}>
                       Currently Selected
                     </Typography>
                   </Box>
@@ -110,6 +116,13 @@ function LanguageSelection() {
                   variant={selectedLanguage === language.id ? 'outlined' : 'contained'}
                   onClick={() => handleSelectLanguage(language.id)}
                   disabled={loading}
+                  sx={{
+                    minWidth: 130,
+                    fontWeight: 700,
+                    ...(selectedLanguage !== language.id
+                      ? { bgcolor: '#1f58b2', '&:hover': { bgcolor: '#18488f' } }
+                      : { borderColor: '#1f58b2', color: '#1f58b2' })
+                  }}
                 >
                   {selectedLanguage === language.id ? 'Selected' : 'Select'}
                 </Button>
