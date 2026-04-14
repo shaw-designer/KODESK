@@ -350,7 +350,8 @@ function LearningContent() {
             width: 300,
             height: 'fit-content',
             position: 'sticky',
-            top: 20,
+            top: 92,
+            zIndex: 1,
             backgroundColor: '#ffffff',
             boxShadow: '0 14px 32px rgba(7, 22, 48, 0.28)',
             borderRadius: 3,
@@ -428,12 +429,22 @@ function LearningContent() {
                   fontWeight: 700
                 }}
               />
-              <Typography variant="h4" gutterBottom sx={{ fontWeight: 800, color: activeTheme?.accent, mb: 3, pb: 2, borderBottom: `3px solid ${activeTheme?.accent}` }}>
-                {selectedTopic.title}
-              </Typography>
-              <Typography variant="body1" paragraph sx={{ lineHeight: 2.05, color: '#142437', fontSize: '17px', mb: 3, fontWeight: 500 }}>
-                {selectedTopic.content}
-              </Typography>
+              <Box
+                sx={{
+                  p: 3,
+                  borderRadius: 2.5,
+                  border: `2px solid ${activeTheme?.accent}`,
+                  background: `linear-gradient(155deg, ${activeTheme?.soft} 0%, #ffffff 100%)`,
+                  boxShadow: '0 10px 24px rgba(7, 22, 48, 0.18)'
+                }}
+              >
+                <Typography variant="h4" gutterBottom sx={{ fontWeight: 800, color: activeTheme?.accent, mb: 2.2, pb: 1.5, borderBottom: `3px solid ${activeTheme?.accent}` }}>
+                  {selectedTopic.title}
+                </Typography>
+                <Typography variant="body1" paragraph sx={{ lineHeight: 2.05, color: '#142437', fontSize: '17px', mb: 0, fontWeight: 500 }}>
+                  {selectedTopic.content}
+                </Typography>
+              </Box>
               {formattedCodeExample && (
                 <Box sx={{ mt: 4, p: 3, bgcolor: activeTheme?.soft, borderRadius: 2.5, border: `2px solid ${activeTheme?.accent}`, boxShadow: '0 10px 24px rgba(7, 22, 48, 0.20)' }}>
                   <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: activeTheme?.accent, mb: 2 }}>
