@@ -164,10 +164,10 @@ function TaskDetail() {
                 <TextField
                   fullWidth
                   multiline
-                  rows={16}
+                  rows={12}
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
-                  placeholder="Write your solution here..."
+                  placeholder="Craft your solution with clean, readable code..."
                   variant="outlined"
                   autoComplete="off"
                   spellCheck="false"
@@ -182,13 +182,14 @@ function TaskDetail() {
                     },
                     '& textarea': {
                       fontFamily: '"JetBrains Mono", "Consolas", monospace',
-                      fontSize: 14,
-                      lineHeight: 1.7,
+                      fontSize: 14.5,
+                      lineHeight: 1.85,
+                      letterSpacing: '0.015em',
                       color: '#d7e9ff',
-                      padding: 16
+                      padding: '18px 20px'
                     },
                     '& textarea::placeholder': {
-                      color: '#6f88a8',
+                      color: '#7f9abc',
                       opacity: 1
                     }
                   }}
