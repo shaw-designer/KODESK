@@ -30,7 +30,7 @@ const GAME_CATALOG = [
     title: 'Hare-y Situation',
     description: 'Fast bunny rescue chaos with explosive hazards.',
     required_level: 3,
-    root_dir: '../../Hare-y-Situation-main',
+    root_dir: '../../Hare-y-Situation',
     entry_file: 'index.html'
   },
   {
