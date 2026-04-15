@@ -40,7 +40,7 @@ const drawerWidthExpanded = 280;
 const drawerWidthCollapsed = 86;
 
 const menuItems = [
-  { text: 'Hub', icon: <DashboardIcon />, path: '/' },
+  { text: 'Hub', icon: <DashboardIcon />, path: '/hub' },
   { text: 'Realms', icon: <LanguageIcon />, path: '/languages' },
   { text: 'Learning', icon: <SchoolIcon />, path: '/learning' },
   { text: 'Quests', icon: <CodeIcon />, path: '/tasks' },
@@ -88,7 +88,7 @@ function Layout() {
   const renderMenuList = (collapsed = false, onNavigate = () => {}) => (
     <List sx={{ mt: 1.5, px: collapsed ? 1 : 1.2 }}>
       {menuItems.map((item) => {
-        const selected = item.path === '/' ? location.pathname === '/' : location.pathname.startsWith(item.path);
+        const selected = location.pathname === item.path || location.pathname.startsWith(`${item.path}/`);
         const itemButton = (
           <ListItemButton
             selected={selected}

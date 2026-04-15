@@ -74,8 +74,8 @@ function App() {
 
       <Routes>
         {/* Public launchpad route for guests */}
-        <Route path="/" element={<Navigate to={user ? '/learning' : '/launchpad'} replace />} />
-        <Route path="launchpad" element={user ? <Navigate to="/learning" replace /> : <LearningContent />} />
+        <Route path="/" element={<Navigate to={user ? '/hub' : '/launchpad'} replace />} />
+        <Route path="launchpad" element={user ? <Navigate to="/hub" replace /> : <LearningContent />} />
         <Route path="cpp" element={<LearningContent />} />
         <Route path="java" element={<LearningContent />} />
         <Route path="python" element={<LearningContent />} />
@@ -91,7 +91,8 @@ function App() {
             </PrivateRoute>
           }
         >
-          <Route index element={<Dashboard />} />
+          <Route index element={<Navigate to="/hub" replace />} />
+          <Route path="hub" element={<Dashboard />} />
           <Route path="learning" element={<LearningContent />} />
           <Route path="learning/cpp" element={<LearningContent />} />
           <Route path="learning/java" element={<LearningContent />} />
@@ -109,7 +110,7 @@ function App() {
         </Route>
 
         {/* Catch-all route */}
-        <Route path="*" element={<Navigate to={user ? '/learning' : '/launchpad'} replace />} />
+        <Route path="*" element={<Navigate to={user ? '/hub' : '/launchpad'} replace />} />
       </Routes>
 
       <style>{`

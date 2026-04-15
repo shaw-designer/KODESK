@@ -40,7 +40,7 @@ function Register() {
     const result = await register(name, email, password);
     
     if (result.success) {
-      navigate('/learning');
+      navigate('/hub');
     } else {
       setError(result.message);
     }
